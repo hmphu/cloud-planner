@@ -1,0 +1,47 @@
+<%= form_for(instance_type) do |f| %>
+  <% if instance_type.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(instance_type.errors.count, "error") %> prohibited this instance_type from being saved:</h2>
+
+      <ul>
+      <% instance_type.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :provider_id %>
+    <%= f.number_field :provider_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :region_id %>
+    <%= f.number_field :region_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :machine_type_id %>
+    <%= f.number_field :machine_type_id %>
+  </div>
+
+  <div class="field">
+    <%= f.label :os_type %>
+    <%= f.number_field :os_type %>
+  </div>
+
+  <div class="field">
+    <%= f.label :price %>
+    <%= f.text_field :price %>
+  </div>
+
+  <div class="field">
+    <%= f.label :price_1y %>
+    <%= f.text_field :price_1y %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

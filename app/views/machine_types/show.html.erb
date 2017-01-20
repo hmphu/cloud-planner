@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @machine_type.name %>
+</p>
+
+<p>
+  <strong>Core count:</strong>
+  <%= @machine_type.core_count %>
+</p>
+
+<p>
+  <strong>Memory size:</strong>
+  <%= @machine_type.memory_size %>
+</p>
+
+<p>
+  <strong>Provider:</strong>
+  <%= @machine_type.provider_id %>
+</p>
+
+<%= link_to 'Edit', edit_machine_type_path(@machine_type) %> |
+<%= link_to 'Back', machine_types_path %>

@@ -1,0 +1,1 @@
+json.partial! "instance_types/instance_type", instance_type: @instance_type

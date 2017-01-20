@@ -1,0 +1,37 @@
+<%= form_for(machine_type) do |f| %>
+  <% if machine_type.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(machine_type.errors.count, "error") %> prohibited this machine_type from being saved:</h2>
+
+      <ul>
+      <% machine_type.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= f.label :core_count %>
+    <%= f.number_field :core_count %>
+  </div>
+
+  <div class="field">
+    <%= f.label :memory_size %>
+    <%= f.number_field :memory_size %>
+  </div>
+
+  <div class="field">
+    <%= f.label :provider_id %>
+    <%= f.number_field :provider_id %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

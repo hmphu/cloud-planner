@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  core_count: 1
+  memory_size: 1
+  provider_id: 1
+
+two:
+  name: MyString
+  core_count: 1
+  memory_size: 1
+  provider_id: 1
