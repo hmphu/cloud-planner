@@ -1,24 +1,21 @@
-# README
+# Cloud-Planner
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Find the most cost efficient cloud provider among AWS, Azure and Google.
 
-Things you may want to cover:
+* Cost calculation
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
+* Cost comparison
 
 * ...
+
+## Raw data
+
+You can load the raw data for the calculation using lib/load_data.rb
+
+```
+rails console
+irb> load "#{Rails.root}/lib/load_data.rb"
+irb> load_providers
+irb> load_regions
+```
+
