@@ -31,3 +31,6 @@ def load_regions
     end
   end
 end
+
+def load_machine_types
+end
