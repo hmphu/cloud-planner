@@ -25,3 +25,8 @@ irb> Region.load_aws_regions
 irb> MachineType.load_aws_machinetypes
 ```
 
+Load InstanceType data
+```
+rake raw_data:aws_instances
+```
+
