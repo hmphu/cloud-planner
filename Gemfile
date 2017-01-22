@@ -56,4 +56,4 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'httparty'
 
 # better print in console : ap User.all
- gem "awesome_print", require:"ap"
+gem "awesome_print", require:"ap"

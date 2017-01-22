@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170120161640) do
+ActiveRecord::Schema.define(version: 20170122094508) do
 
   create_table "instance_types", force: :cascade do |t|
     t.integer  "provider_id"
@@ -19,8 +19,10 @@ ActiveRecord::Schema.define(version: 20170120161640) do
     t.integer  "os_type"
     t.float    "price"
     t.float    "price_1y"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.string   "pre_installed_sw"
+    t.integer  "contract_type"
   end
 
   create_table "machine_types", force: :cascade do |t|
