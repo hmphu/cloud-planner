@@ -6,6 +6,8 @@ class Provider < ApplicationRecord
 
 
   def self.load_providers
+    return "Already Loaded" if self.count > 0
+
     ['aws', 'azure', 'google'].each do |p|
       create name: p
     end
