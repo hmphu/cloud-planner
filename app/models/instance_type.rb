@@ -29,31 +29,31 @@ class InstanceType < ApplicationRecord
 
   def self.load_aws_data
     os_type_map = {
-      "Windows" => :windows,
-      "Linux" => :linux,
-      "RHEL" => :rhel,
-      "SUSE" => :suse,
-      "NA" => :na,
+      "windows" => :windows,
+      "linux" => :linux,
+      "rhel" => :rhel,
+      "suse" => :suse,
+      "na" => :na,
     }
 
     contract_type_map = {
-      "1yr No Upfront"      => :ri_1y_no,
-      "1yr Partial Upfront" => :ri_1y_partial,
-      "1yr All Upfront"     => :ri_1y_all,
-      "3yr No Upfront"      => :ri_3y_no,
-      "3yr Partial Upfront" => :ri_3y_partial,
-      "3yr All Upfront"     => :ri_3y_all,
+      "1yr no upfront"      => :ri_1y_no,
+      "1yr partial upfront" => :ri_1y_partial,
+      "1yr all upfront"     => :ri_1y_all,
+      "3yr no upfront"      => :ri_3y_no,
+      "3yr partial upfront" => :ri_3y_partial,
+      "3yr all upfront"     => :ri_3y_all,
     }
 
     unit_map = {
-      "Hrs" => :hourly,
-      "Quantity" => :upfront,
+      "hrs" => :hourly,
+      "quantity" => :upfront,
     }
 
     tenancy_map = {
-      "Shared" => :shared,
-      "Dedicated" => :dedicated,
-      "Host" => :host,
+      "shared" => :shared,
+      "dedicated" => :dedicated,
+      "host" => :host,
     }
 
 
@@ -61,6 +61,7 @@ class InstanceType < ApplicationRecord
     aws = Provider.find_by_name('aws')
     machine_types = aws.machine_types.all.to_a
 
+    total_count = 0
     aws.regions.each do |region|
       count = 0
 
@@ -68,12 +69,10 @@ class InstanceType < ApplicationRecord
       raw_insts = HTTParty.get("http://localhost:3000/instances?location=#{org_name}")
 
       raw_insts.each do |ri|
+        # BYOL data is ignore. Linux price can be used.
+        next if ri['license_model'] == "bring your own license"
 
-        #debug 
-        #ap ri
-
-        new_inst  = region.instance_types.new 
-        new_inst[:provider_id] = aws.id
+        new_inst  = region.instance_types.new
 
         # machine_type_id
         tmp = machine_types.index {|m| m.name == ri["instance_type"]}
@@ -82,7 +81,7 @@ class InstanceType < ApplicationRecord
 
         # os_type
         tmp = os_type_map[ri["operating_system"]]
-        if tmp.nil? and ri['tenancy'] != 'Host'
+        if tmp.nil? and ri['tenancy'] != 'host'
           puts "Unknown os_type: #{ri['operating_system']}" 
           ap ri
         end
@@ -115,17 +114,17 @@ class InstanceType < ApplicationRecord
         new_inst[:sku] = ri['sku']
         new_inst[:pre_installed_sw] = ri['pre_installed_sw']
 
-        # debug print
-        # ap new_inst  
-        
         # create new instance_type
+        new_inst[:provider_id] = aws.id
         new_inst.save
+
         count += 1
         puts "#{region.name} - #{count}......" if count % 1000 == 0
       end
 
       puts "#{region.name} - #{count} Done."
-
+      total_count += count
+      puts "TOTAL - #{total_count}"
     end
   end
 end

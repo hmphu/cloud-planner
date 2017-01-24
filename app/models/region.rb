@@ -24,21 +24,21 @@ class Region < ApplicationRecord
   # Global Areas : US, EU, AP(Asia Pacific), 
   #                SA(Aouth America), NA(North America) 
   @@aws_mapper = NameMapper.new ([
-      ["US East (Ohio)" , "us_ohio"],
-      ["EU (Frankfurt)" , "eu_frankfurt"],
-      ["Asia Pacific (Seoul)" , "ap_seoul"],
-      ["Asia Pacific (Singapore)" , "ap_singapore"],
-      ["Asia Pacific (Sydney)" , "ap_sydney"],
-      ["US West (Oregon)" , "us_oregon"],
-      ["South America (Sao Paulo)" , "sa_saopaulo"],
-      ["US East (N. Virginia)" , "us_virginia"],
-      ["US West (N. California)" , "us_california"],
-      ["AWS GovCloud (US)" , "us_gov"],
-      ["EU (Ireland)" , "eu_ireland"],
-      ["Asia Pacific (Tokyo)" , "ap_tokyo"],
-      ["Asia Pacific (Mumbai)" , "ap_mumbai"],
-      ["Canada (Central)" , "na_ca"],
-      ["EU (London)" , "eu_london"],
+      ["us east (ohio)" , "us_ohio"],
+      ["eu (frankfurt)" , "eu_frankfurt"],
+      ["asia pacific (seoul)" , "ap_seoul"],
+      ["asia pacific (singapore)" , "ap_singapore"],
+      ["asia pacific (sydney)" , "ap_sydney"],
+      ["us west (oregon)" , "us_oregon"],
+      ["south america (sao paulo)" , "sa_saopaulo"],
+      ["us east (n. virginia)" , "us_virginia"],
+      ["us west (n. california)" , "us_california"],
+      ["aws govcloud (us)" , "us_gov"],
+      ["eu (ireland)" , "eu_ireland"],
+      ["asia pacific (tokyo)" , "ap_tokyo"],
+      ["asia pacific (mumbai)" , "ap_mumbai"],
+      ["canada (central)" , "na_ca"],
+      ["eu (london)" , "eu_london"],
     ])
 
   def self.aws_mapper
@@ -47,12 +47,11 @@ class Region < ApplicationRecord
 
   def self.load_aws_regions
     mapper = @@aws_mapper
-
-    aws_id = Provider.find_by_name('aws').id
+    aws = Provider.find_by_name('aws').id
+    aws.regions.delete_all
     @regions = HTTParty.get('http://localhost:3000/instances/locations')
-    
     @regions.each do |r|
-       create name: mapper.find_right(r), provider_id: aws_id
+       create name: mapper.find_right(r), provider_id: aws.id
     end
   end
 end
