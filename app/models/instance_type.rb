@@ -17,6 +17,7 @@ class InstanceType < ApplicationRecord
   ]
 
   enum unit: [:hourly, :upfront, :unknown_unit]
+  enum offering_class: [:standard, :convertible ]
 
   # :dedicated -> dedicated_instance, :host -> dedicated_host
   enum tenancy: [:shared, :dedicated, :host, :unknonw_tenancy]
@@ -69,23 +70,18 @@ class InstanceType < ApplicationRecord
       raw_insts = HTTParty.get("http://localhost:3000/instances?location=#{org_name}")
 
       raw_insts.each do |ri|
+        h = {}
+
         # BYOL data is ignore. Linux price can be used.
         next if ri['license_model'] == "bring your own license"
-
-        new_inst  = region.instance_types.new
 
         # machine_type_id
         tmp = machine_types.index {|m| m.name == ri["instance_type"]}
         next if tmp.nil?
-        new_inst[:machine_type_id] = machine_types[tmp].id
+        h[:machine_type_id] = machine_types[tmp].id
 
         # os_type
-        tmp = os_type_map[ri["operating_system"]]
-        if tmp.nil? and ri['tenancy'] != 'host'
-          puts "Unknown os_type: #{ri['operating_system']}" 
-          ap ri
-        end
-        new_inst[:os_type] = tmp or :unknown_os
+        h[:os_type] = os_type_map[ri["operating_system"]]
 
         # contract_type 
         tmp = :on_demand
@@ -93,30 +89,20 @@ class InstanceType < ApplicationRecord
           tmp = contract_type_map[ ri["lease_contract_length"] + " " + ri["purchase_option"] ]
           if tmp.nil?
             puts "Unknown contract_type: " + ri["lease_contract_length"]+ " " + ri["purchase_option"]
-            tmp = :unknown_contract 
+            tmp = :unknown_contract
           end
         end
-        new_inst[:contract_type] = tmp
+        h[:contract_type] = tmp
 
-        # price
-        tmp = ri['price_per_unit'] or 0
-        new_inst[:price] = tmp
+        h[:price] = ri['price_per_unit']
+        h[:unit] = unit_map[ri["unit"]]
+        h[:tenancy] = tenancy_map[ri["tenancy"]]
+        h[:sku] = ri['sku']
+        h[:pre_installed_sw] = ri['pre_installed_sw']
+        h[:offering_class] = ri['offering_class']
+        h[:provider_id] = aws.id
 
-        # unit
-        tmp = unit_map[ri["unit"]]
-        new_inst[:unit] = tmp or :unknown_unit
-
-        # tenancy
-        tmp = tenancy_map[ri["tenancy"]]
-        new_inst[:tenancy] = tmp or :unknown_tenancy
-
-        # others
-        new_inst[:sku] = ri['sku']
-        new_inst[:pre_installed_sw] = ri['pre_installed_sw']
-
-        # create new instance_type
-        new_inst[:provider_id] = aws.id
-        new_inst.save
+        new_inst  = region.instance_types.create(h)
 
         count += 1
         puts "#{region.name} - #{count}......" if count % 1000 == 0
