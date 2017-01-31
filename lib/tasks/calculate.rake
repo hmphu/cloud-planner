@@ -1,18 +1,20 @@
-namespace :calculate do
-  desc "calcuate cost of AWS "
-  task :aws, [:infile] =>  :environment do |t, args|
-    CSV.foreach(args[:infile]) do |row|
-      ap row
-    end
+desc "Calc"
+task :calc, [:infile] =>  :environment do |t, args|
+  input = TOML.load_file("#{Rails.root}/calc/#{args[:infile]}") 
+  servers = input['servers']
+  provider = input['common']['provider']
+  region = input['common']['region']
 
+  input['servers'].each do |k, v|
+    name = k
+    machine = v['machine']
+    os = v['os']
+    region = v['region'] || region
+
+    desc, cost = Provider.cost(provider, region, machine, os, v)
+
+    puts name + ': ' + desc
+    puts cost
   end
-
-  desc "TODO"
-  task azure: :environment do
-  end
-
-  desc "TODO"
-  task google: :environment do
-  end
-
 end
+
