@@ -57,3 +57,5 @@ gem 'httparty'
 
 # better print in console : ap User.all
 gem "awesome_print", require:"ap"
+
+gem 'toml-rb', require:"toml"
