@@ -11,16 +11,19 @@ class InstanceType < ApplicationRecord
 
   enum contract_type: [
     :on_demand, 
-    :ri_1y_no, :ri_1y_partial, :ri_1y_all, 
-    :ri_3y_no, :ri_3y_partial, :ri_3y_all, 
+    :ri_1y_no, :ri_1y_partial, :ri_1y_all,
+    :ri_3y_no, :ri_3y_partial, :ri_3y_all,
+    :ri_1y, :ri_3y,
     :unknown_contract
   ]
+
+  enum prepay_type: [ :prepay_no, :prepay_partial, :prepay_all ]
 
   enum unit: [:hourly, :upfront, :unknown_unit]
   enum offering_class: [:standard, :convertible ]
 
   # :dedicated -> dedicated_instance, :host -> dedicated_host
-  enum tenancy: [:shared, :dedicated, :host, :unknonw_tenancy]
+  enum tenancy: [:shared, :dedicated, :host, :unknown_tenancy]
 
   def self.of_type(name)
     mid = MachineType.find_by_name(name.to_s).id
@@ -44,6 +47,14 @@ class InstanceType < ApplicationRecord
       "3yr no upfront"      => :ri_3y_no,
       "3yr partial upfront" => :ri_3y_partial,
       "3yr all upfront"     => :ri_3y_all,
+      "1yr" => :ri_1y,
+      "3yr" => :ri_3y,
+    }
+
+    purchase_option_map = {
+      "no upfront" => :prepay_no,
+      "partial upfront" => :prepay_partial,
+      "all upfront" => :prepay_all,
     }
 
     unit_map = {
@@ -83,16 +94,8 @@ class InstanceType < ApplicationRecord
         # os_type
         h[:os_type] = os_type_map[ri["operating_system"]]
 
-        # contract_type 
-        tmp = :on_demand
-        if ["1yr", "3yr"].include? ri["lease_contract_length"]
-          tmp = contract_type_map[ ri["lease_contract_length"] + " " + ri["purchase_option"] ]
-          if tmp.nil?
-            puts "Unknown contract_type: " + ri["lease_contract_length"]+ " " + ri["purchase_option"]
-            tmp = :unknown_contract
-          end
-        end
-        h[:contract_type] = tmp
+        h[:contract_type] = contract_type_map[ri['lease_contract_length]']] || :on_demand
+        h[:prepay_type] = purchase_option_map[ri['purchase_option]']]
 
         h[:price] = ri['price_per_unit']
         h[:unit] = unit_map[ri["unit"]]
