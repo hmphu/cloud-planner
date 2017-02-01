@@ -22,7 +22,8 @@ region = 'ap_seoul'
 machine = 'm4.xlarge'
 os = 'windows'
 count = 1
-#contract = 'ri_3y_partial'
+contract = 'ri_3y'
+upfront = 'partial'
 
 [servers.us1]
 machine = 'm4.xlarge'

@@ -1,20 +1,28 @@
 desc "Calc"
 task :calc, [:infile] =>  :environment do |t, args|
-  input = TOML.load_file("#{Rails.root}/calc/#{args[:infile]}") 
-  servers = input['servers']
-  provider = input['common']['provider']
-  region = input['common']['region']
+  in_file = "#{Rails.root}/calc/#{args[:infile]}"
+  toml = TOML.load_file(in_file)
 
-  input['servers'].each do |k, v|
+  servers = toml['servers']
+
+  total_cost = 0
+  c = {}
+  toml['common'].each { |k, v| c[k] = v }
+
+  toml['servers'].each do |k, v|
     name = k
-    machine = v['machine']
-    os = v['os']
-    region = v['region'] || region
 
-    desc, cost = Provider.cost(provider, region, machine, os, v)
+    v['provider']  = v['provider'] || c['provider']
+    v['region']    = v['region']     || c['region']
+    v['machine']   = v['machine']    || c['machine']
+    v['os']        = v['os']         || c['os']
 
-    puts name + ': ' + desc
-    puts cost
+    desc, cost = Provider.cost(v['provider'], v['region'], v['machine'], v['os'], v)
+
+    puts name + ' ----'
+    puts cost.to_s  + ' : ' + desc
+    total_cost += cost
   end
+  puts total_cost.to_s
 end
 

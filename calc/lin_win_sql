@@ -18,10 +18,21 @@ region = 'ap_seoul'
 # MANATORY : machine, os
 # OPTIONAL : count, sw, tenancy, reserved ...
 
-[servers.kr]
+[servers.lin]
+machine = 'm4.xlarge'
+os = 'linux'
+
+[servers.win]
 machine = 'm4.xlarge'
 os = 'windows'
-count = 1
-contract = 'ri_3y'
-upfront = 'partial'
+
+[servers.sql]
+machine = 'm4.xlarge'
+os = 'windows'
+pre_installed_sw = 'sql std'
+
+[servers.sqlweb]
+machine = 'm4.xlarge'
+os = 'windows'
+pre_installed_sw = 'sql web'
 
