@@ -1,4 +1,4 @@
-META,WestUS,Windows,Standard
+META,West US,Windows,Standard,on_demand
 A0,1cores,0.75GBRAM,20GBdisk,$0.020/hr
 A1,1cores,1.75GBRAM,70GBdisk,$0.090/hr
 A2,2cores,3.5GBRAM,135GBdisk,$0.180/hr
@@ -52,7 +52,7 @@ A8v2,8cores,16GBRAM,80GBdisk,$0.600/hr
 A2mv2,2cores,16GBRAM,20GBdisk,$0.225/hr
 A4mv2,4cores,32GBRAM,40GBdisk,$0.297/hr
 A8mv2,8cores,64GBRAM,80GBdisk,$0.900/hr
-META,WestUS,Linux,Standard
+META,West US,Linux,Standard,on_demand
 A0,1cores,0.75GBRAM,20GBdisk,$0.020/hr
 A1,1cores,1.75GBRAM,70GBdisk,$0.060/hr
 A2,2cores,3.5GBRAM,135GBdisk,$0.120/hr
@@ -106,7 +106,7 @@ A8v2,8cores,16GBRAM,80GBdisk,$0.400/hr
 A2mv2,2cores,16GBRAM,20GBdisk,$0.149/hr
 A4mv2,4cores,32GBRAM,40GBdisk,$0.297/hr
 A8mv2,8cores,64GBRAM,80GBdisk,$0.594/hr
-META,WestUS,SQLStandard,Standard
+META,West US,SQL Standard,Standard,on_demand
 A0,1cores,0.75GBRAM,20GBdisk,$0.420/hr
 A1,1cores,1.75GBRAM,70GBdisk,$0.490/hr
 A2,2cores,3.5GBRAM,135GBdisk,$0.580/hr

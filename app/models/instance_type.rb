@@ -1,3 +1,5 @@
+require 'csv'
+
 class InstanceType < ApplicationRecord
   belongs_to :provider
   belongs_to :region
@@ -28,6 +30,74 @@ class InstanceType < ApplicationRecord
   def self.of_type(name)
     mid = MachineType.find_by_name(name.to_s).id
     where(machine_type_id: mid)
+  end
+
+  def self.load_azure_date
+    r_list = {}
+    m_list = {}
+
+    p = Provider.find(name: 'azure')
+    p.regions.each {|r| r_list[r.name] = r.id}
+    p.machine_types.each {|m| m_list[m.name] = m.id}
+
+    filename = "#{Rails.root}/db/raw/azure.csv"
+    CSV.foreach( filename) do |row| 
+      region = nil
+      os = nil
+      offering = nil
+      sw = 'na'
+
+      next if row.size != 5
+
+      row.map! {|c| c.downcase }
+
+      if row[0].downcase == 'meta'
+        # ROW of meta data 
+        region, os, offering, contract_type = row[1..4]
+
+        if os == 'sql standard'
+          os = 'windows'
+          sw = 'sql std'
+        else
+          sw = 'na'
+        end
+
+
+        unless r_list[region]
+          r = p.regions.create(name: region)
+          r_list[region] = r.id
+        end
+      else
+        # ROW of price data
+        machine, cores, memory, disk, price = row 
+
+        unless m_list[machine]
+          m = p.machine_types.create(
+            name: machine,
+            core_count: cores.to_i,
+            memory_size: momory.to_f,
+            disk_size: disk.to_i,
+          )
+          m_list[machine] = m.id
+        end
+
+        p.instance_types.create(
+          region_id: r_list[region],
+          machine_type_id: m_list[machine],
+          os_type: os,
+          price: price.sub(/\$/, '').to_f,
+          offering_class: offering,
+          pre_installed_sw: sw 
+          unit: 'hr',
+          contract_type: xx,
+          tenancy:  'shared',
+          prepay_type: xx,
+        )
+
+      end
+    end
+
+
   end
 
 
@@ -67,7 +137,6 @@ class InstanceType < ApplicationRecord
       "dedicated" => :dedicated,
       "host" => :host,
     }
-
 
 
     aws = Provider.find_by_name('aws')
