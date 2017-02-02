@@ -9,20 +9,15 @@ task :calc, [:infile] =>  :environment do |t, args|
   c = {}
   toml['common'].each { |k, v| c[k] = v }
 
-  toml['servers'].each do |k, v|
-    name = k
-
-    v['provider']  = v['provider'] || c['provider']
-    v['region']    = v['region']     || c['region']
-    v['machine']   = v['machine']    || c['machine']
-    v['os']        = v['os']         || c['os']
+  toml['servers'].each do |name, v|
+    c.each { |i,j| v[i] = v[i] || j }
 
     desc, cost = Provider.cost(v['provider'], v['region'], v['machine'], v['os'], v)
 
-    puts name + ' ----'
-    puts cost.to_s  + ' : ' + desc
+    puts name + ' -- ' + cost.to_s
+    puts desc
     total_cost += cost
   end
-  puts total_cost.to_s
+  puts 'total'+ ' -- ' + total_cost.round(3).to_s
 end
 
