@@ -27,6 +27,12 @@ namespace :raw_data do
   desc "load Azure Instance types"
   task azure_instances: :environment do
     p = Provider.find_by_name('azure')
+
+    old_count = p.instance_types.count.to_s
     p.instance_types.delete_all
-    InstanceType.load_azure_date
+    puts old_count + " deleted"
+
+    InstanceType.load_azure_data
+    puts p.instance_types.count.to_s + " created" 
+  end
 end

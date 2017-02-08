@@ -32,26 +32,21 @@ class InstanceType < ApplicationRecord
     where(machine_type_id: mid)
   end
 
-  def self.load_azure_date
+  def self.load_azure_data
     r_list = {}
     m_list = {}
+    region, os, sw, offering, contract_type = nil, nil, nil, nil
 
-    p = Provider.find(name: 'azure')
+    p = Provider.find_by_name('azure')
     p.regions.each {|r| r_list[r.name] = r.id}
     p.machine_types.each {|m| m_list[m.name] = m.id}
 
     filename = "#{Rails.root}/db/raw/azure.csv"
     CSV.foreach( filename) do |row| 
-      region = nil
-      os = nil
-      offering = nil
-      sw = 'na'
+      next if row.size < 5
+      row.map! {|c| c.downcase if c}
 
-      next if row.size != 5
-
-      row.map! {|c| c.downcase }
-
-      if row[0].downcase == 'meta'
+      if row[0]== 'meta'
         # ROW of meta data 
         region, os, offering, contract_type = row[1..4]
 
@@ -62,41 +57,39 @@ class InstanceType < ApplicationRecord
           sw = 'na'
         end
 
-
         unless r_list[region]
           r = p.regions.create(name: region)
           r_list[region] = r.id
         end
       else
         # ROW of price data
-        machine, cores, memory, disk, price = row 
+        machine, cores, memory, disk, price = row
 
         unless m_list[machine]
           m = p.machine_types.create(
             name: machine,
             core_count: cores.to_i,
-            memory_size: momory.to_f,
+            memory_size: memory.to_f,
             disk_size: disk.to_i,
           )
           m_list[machine] = m.id
         end
 
-        p.instance_types.create(
+        inst = p.instance_types.create(
           region_id: r_list[region],
           machine_type_id: m_list[machine],
           os_type: os,
           price: price.sub(/\$/, '').to_f,
           offering_class: offering,
-          pre_installed_sw: sw 
-          unit: 'hr',
-          contract_type: xx,
+          pre_installed_sw: sw,
+          unit: 'hourly',
+          contract_type: 'on_demand',
           tenancy:  'shared',
-          prepay_type: xx,
+          prepay_type: 'prepay_no',
         )
-
+#        ap inst #xxx
       end
     end
-
 
   end
 
