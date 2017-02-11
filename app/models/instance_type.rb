@@ -30,7 +30,7 @@ class InstanceType < ApplicationRecord
     opts.symbolize_keys!
     opts.transform_values! {|x| x.to_s.downcase }
 
-    pre_installed_sw = opts[:pre_installed_sw] || 'na'
+    software = opts[:software] || 'no sw'
     tenancy = opts[:tenancy] || 'shared'
     price_unit = opts[:price_unit] || 'hourly'
     contract = opts[:contract] || 'on_demand'
@@ -52,7 +52,7 @@ class InstanceType < ApplicationRecord
         region: r,
         machine: m,
         os: os,
-        pre_installed_sw: pre_installed_sw,
+        software: software,
         contract: contract,
         tenancy: tenancy,
         price_unit: price_unit,
@@ -86,7 +86,7 @@ class InstanceType < ApplicationRecord
         region: r,
         machine: m,
         os: os,
-        pre_installed_sw: pre_installed_sw,
+        software: software,
         contract: contract,
         prepay: prepay,
         tenancy: tenancy,
@@ -110,7 +110,7 @@ class InstanceType < ApplicationRecord
     unit_cost = cost.round(3)
     cost = cost * count
 
-    desc = [p, r, m, os, pre_installed_sw, contract, tenancy, prepay, price_unit, unit_cost.to_s, count.to_s].join(', ')
+    desc = [p, r, m, os, software, contract, tenancy, prepay, price_unit, unit_cost.to_s, count.to_s].join(', ')
 
     return desc, cost.round(3)
   end
@@ -140,7 +140,7 @@ class InstanceType < ApplicationRecord
           os = 'windows'
           sw = 'sql std'
         else
-          sw = 'na'
+          sw = 'no sw'
         end
 
         unless region_names.include? region
@@ -154,7 +154,7 @@ class InstanceType < ApplicationRecord
         unless machine_names.include? machine
           m = p.machine_types.create(
             name: machine,
-            provider_name: 'azure'
+            provider_name: 'azure',
             core_count: cores.to_i,
             memory_size: memory.to_f,
             disk_size: disk.to_i,
@@ -168,7 +168,7 @@ class InstanceType < ApplicationRecord
           os: os,
           price: price.sub(/\$/, '').to_f,
           offering: offering,
-          pre_installed_sw: sw,
+          software: sw,
           price_unit: 'hourly',
           contract: 'on_demand',
           tenancy:  'shared',
@@ -186,7 +186,7 @@ class InstanceType < ApplicationRecord
       "linux" => 'linux',
       "rhel" => 'rhel',
       "suse" => 'suse',
-      "na" => 'na',
+      "na" => 'no sw',
     }
 
     contract_type_map = {
@@ -245,7 +245,7 @@ class InstanceType < ApplicationRecord
         h[:price_unit] = unit_map[ri["unit"]].to_s
         h[:tenancy] = tenancy_map[ri["tenancy"]].to_s
         h[:sku] = ri['sku']
-        h[:pre_installed_sw] = ri['pre_installed_sw']
+        h[:software] = ri['pre_installed_sw']
         h[:offering] = ri['offering_class'].to_s
 
         new_inst  = region.instance_types.create(h)
