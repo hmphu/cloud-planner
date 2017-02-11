@@ -122,11 +122,10 @@ class InstanceType < ApplicationRecord
   def self.load_azure_data
     r_list = {}
     m_list = {}
-    region, os, sw, offering, contract_type = nil, nil, nil, nil
+    region, os, sw, offering, contract= nil, nil, nil, nil
 
-    p = Provider.find_by_name('azure')
-    p.regions.each {|r| r_list[r.name] = r.id}
-    p.machine_types.each {|m| m_list[m.name] = m.id}
+    region_names = Region.where(provider_name: 'azure').pluck(:name)
+    machine_names = MachineType.where(provider_name: 'azure').pluck(:name)
 
     filename = "#{Rails.root}/db/raw/azure.csv"
     CSV.foreach( filename) do |row|
@@ -135,7 +134,7 @@ class InstanceType < ApplicationRecord
 
       if row[0]== 'meta'
         # ROW of meta data
-        region, os, offering, contract_type = row[1..4]
+        region, os, offering, contract = row[1..4]
 
         if os == 'sql standard'
           os = 'windows'
@@ -144,27 +143,28 @@ class InstanceType < ApplicationRecord
           sw = 'na'
         end
 
-        unless r_list[region]
-          r = p.regions.create(name: region)
-          r_list[region] = r.id
+        unless region_names.include? region
+          r = p.regions.create(name: region, provider_name: 'azure' )
+          region_names.append region
         end
       else
         # ROW of price data
         machine, cores, memory, disk, price = row
 
-        unless m_list[machine]
+        unless machine_names.include? machine
           m = p.machine_types.create(
             name: machine,
+            provider_name: 'azure'
             core_count: cores.to_i,
             memory_size: memory.to_f,
             disk_size: disk.to_i,
           )
-          m_list[machine] = m.id
+          machine_names.append machine
         end
 
         inst = p.instance_types.create(
           region: region,
-          machine_type_id: m_list[machine],
+          machine: machine, 
           os: os,
           price: price.sub(/\$/, '').to_f,
           offering: offering,
@@ -182,11 +182,11 @@ class InstanceType < ApplicationRecord
 
   def self.load_aws_data
     os_type_map = {
-      "windows" => :windows,
-      "linux" => :linux,
-      "rhel" => :rhel,
-      "suse" => :suse,
-      "na" => :na,
+      "windows" => 'windows',
+      "linux" => 'linux',
+      "rhel" => 'rhel',
+      "suse" => 'suse',
+      "na" => 'na',
     }
 
     contract_type_map = {
@@ -217,12 +217,10 @@ class InstanceType < ApplicationRecord
       "host" => :host,
     }
 
-
-    aws = Provider.find_by_name('aws')
-    machine_types = aws.machine_types.all.to_a
+    machine_names = MachineType.where(provider_name: 'aws').distinct.pluck(:name)
 
     total_count = 0
-    aws.regions.each do |region|
+    Rgion.where(provider_name: 'aws').each do |region|
       count = 0
 
       org_name = Region.aws_mapper.find_left(region.name)
@@ -231,27 +229,24 @@ class InstanceType < ApplicationRecord
       raw_insts.each do |ri|
         h = {}
 
-        # BYOL data is ignore. Linux price can be used.
+        # Ignore BYOL data. Linux price can be used.
         next if ri['license_model'] == "bring your own license"
 
-        # machine_type_id
-        tmp = machine_types.index {|m| m.name == ri["instance_type"]}
-        next if tmp.nil?
-        h[:machine_type_id] = machine_types[tmp].id
+        # SKIP Unknown machine type
+        next unless machine_names.include?(ri['instance_type'])
 
-        # os_type
-        h[:os_type] = os_type_map[ri["operating_system"]]
-
-        h[:contract_type] = contract_type_map[ri['lease_contract_length]']] || :on_demand
-        h[:prepay_type] = purchase_option_map[ri['purchase_option]']]
-
+        h[:provider] = 'aws'
+        h[:region] = region.name
+        h[:machine] = ri['instance_type']
+        h[:os] = os_type_map[ri["operating_system"]].to_s
+        h[:contract] = (contract_type_map[ri['lease_contract_length]']] || :on_demand).to_s
+        h[:prepay] = purchase_option_map[ri['purchase_option]']].to_s
         h[:price] = ri['price_per_unit']
-        h[:unit] = unit_map[ri["unit"]]
-        h[:tenancy] = tenancy_map[ri["tenancy"]]
+        h[:price_unit] = unit_map[ri["unit"]].to_s
+        h[:tenancy] = tenancy_map[ri["tenancy"]].to_s
         h[:sku] = ri['sku']
         h[:pre_installed_sw] = ri['pre_installed_sw']
-        h[:offering_class] = ri['offering_class']
-        h[:provider_id] = aws.id
+        h[:offering] = ri['offering_class'].to_s
 
         new_inst  = region.instance_types.create(h)
 

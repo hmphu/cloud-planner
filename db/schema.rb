@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170211023852) do
+ActiveRecord::Schema.define(version: 20170211055730) do
 
   create_table "instance_types", force: :cascade do |t|
     t.integer  "machine_type_id"
@@ -36,9 +36,10 @@ ActiveRecord::Schema.define(version: 20170211023852) do
     t.integer  "core_count"
     t.float    "memory_size"
     t.integer  "provider_id"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
     t.integer  "disk_size"
+    t.string   "provider_name"
   end
 
   create_table "providers", force: :cascade do |t|
@@ -50,8 +51,9 @@ ActiveRecord::Schema.define(version: 20170211023852) do
   create_table "regions", force: :cascade do |t|
     t.string   "name"
     t.integer  "provider_id"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.string   "provider_name"
   end
 
 end
