@@ -25,3 +25,6 @@
 
 *.swp
 *.swo
+
+calc/*
+calc/sample
