@@ -25,7 +25,7 @@ class InstanceType < ApplicationRecord
   enum offering_class: [:standard, :convertible ]
 
   # :dedicated -> dedicated_instance, :host -> dedicated_host
-  enum tenancy: [:shared, :dedicated, :host, :unknown_tenancy]
+  enum tenancy_type: [:shared, :dedicated, :host, :unknown_tenancy]
 
   def self.of_type(name)
     mid = MachineType.find_by_name(name.to_s).id

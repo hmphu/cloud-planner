@@ -14,12 +14,16 @@ provider = 'aws'
 region = 'ap_seoul'
 os = 'windows'
 contract = 'ri_1y'
-upfront = 'all'
+prepay_type = 'all'
 
 # You can define multiple server requirements unser [servers]
 # Here we are defining two types of requirements which are 'main' and 'db' 
 # MANATORY : machine, os
 # OPTIONAL : count, sw, tenancy, reserved ...
+[servers.emr]
+machine = 'm4.2xlarge'
+count = 1 
+os = 'windows'
 
 [servers.game]
 machine = 'c4.4xlarge'

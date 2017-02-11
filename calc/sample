@@ -23,7 +23,7 @@ machine = 'm4.xlarge'
 os = 'windows'
 count = 1
 contract = 'ri_3y'
-upfront = 'partial'
+prepay_type = 'partial'
 
 [servers.us1]
 machine = 'm4.xlarge'

@@ -25,16 +25,16 @@ class Provider < ApplicationRecord
     tenancy           = opts[:tenancy]   || 'shared'
     unit              = opts[:unit]      || 'hourly'
     count             = (opts[:count]     || 1).to_i
-    offering_class    = nil
-    contract_type = opts[:contract] || 'on_demand'
-    prepay_type       = nil
+    contract_type     = opts[:contract] || 'on_demand'
+    offering_class    = opts[:offering_class] || nil 
+    prepay_type       = opts[:prepay_type] || nil
 
     if(contract_type != 'on_demand')
       offering_class    = opts[:offering_class] || :standard
-      prepay_type = 'prepay_' + (opts[:upfront] || 'all').to_s
+      prepay_type = 'prepay_' + (opts[:prepay_type] || 'all').to_s
     end
 
-    if opts[:upfront] && (opts[:upfront].to_sym == :all)
+    if opts[:prepay_type] && (opts[:prepay_type].to_sym == :all)
       cost = 0
     else
       instances = provider.instance_types.where(
@@ -65,7 +65,7 @@ class Provider < ApplicationRecord
     end
 
 
-    if ['ri_1y', 'ri_3y'].include?(contract_type) && opts[:upfront] != 'no'
+    if ['ri_1y', 'ri_3y'].include?(contract_type) && opts[:prepay_type] != 'no'
       inst2 = provider.instance_types.where(
         region_id: region.id,
         machine_type_id: machine_type.id,
@@ -75,8 +75,7 @@ class Provider < ApplicationRecord
         prepay_type: prepay_type,
         tenancy: tenancy,
         offering_class: offering_class,
-
-        unit: :upfront,
+        unit: prepay_type,
       ).first
 
       prepay = inst2.price
@@ -84,8 +83,8 @@ class Provider < ApplicationRecord
       period = 1 if contract_type == 'ri_1y'
       period = 3 if contract_type == 'ri_3y'
 
-      upfront_hourly = prepay / (period * 365 * 24)
-      cost = cost + upfront_hourly
+      prepay_hourly = prepay / (period * 365 * 24)
+      cost = cost + prepay_hourly
 
     end
 

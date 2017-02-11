@@ -5,23 +5,23 @@
 # Formatting Rules
 
 # title - (optional) you can specify the name of this calcuation 
-title = 'lineage-m cost'
+title = 'azure lineage-m cost'
 
 # [servers] - data for server instance cost
 # provider, region  - common values which should be defined under [server]
 [common]
-provider = 'aws'
-region = 'ap_seoul'
+provider = 'azure'
+region = 'west us'
+os = 'windows'
 
 # You can define multiple server requirements unser [servers]
 # Here we are defining two types of requirements which are 'main' and 'db' 
 # MANATORY : machine, os
 # OPTIONAL : count, sw, tenancy, reserved ...
 
-[servers.kr]
-machine = 'm4.xlarge'
-os = 'windows'
-count = 1
-contract = 'ri_3y'
-prepay_type = 'partial'
+[servers.game]
+machine = 'd5v2'
+#count = 1
+
+
 
