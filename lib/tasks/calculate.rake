@@ -12,9 +12,9 @@ task :calc, [:infile] =>  :environment do |t, args|
   toml['servers'].each do |name, v|
     c.each { |i,j| v[i] = v[i] || j }
 
-    desc, cost = Provider.cost(v['provider'], v['region'], v['machine'], v['os'], v)
+    desc, cost = InstanceType.cost(v['provider'], v['region'], v['machine'], v['os'], v)
 
-    puts name + ' -- ' + cost.to_s
+    puts name + ' -- ' + cost.to_s 
     puts desc
     total_cost += cost
   end

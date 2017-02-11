@@ -1,18 +1,15 @@
 require 'csv'
 
 class InstanceType < ApplicationRecord
-  belongs_to :provider
-  belongs_to :region
-  belongs_to :machine_type
-
+=begin
   enum os_type: [
-    :linux, :windows,     :suse, 
-    :rhel,  :windows_sql, :na,    
+    :linux, :windows,     :suse,
+    :rhel,  :windows_sql, :na,
     :unknown_os
   ]
 
   enum contract_type: [
-    :on_demand, 
+    :on_demand,
     :ri_1y_no, :ri_1y_partial, :ri_1y_all,
     :ri_3y_no, :ri_3y_partial, :ri_3y_all,
     :ri_1y, :ri_3y,
@@ -26,10 +23,100 @@ class InstanceType < ApplicationRecord
 
   # :dedicated -> dedicated_instance, :host -> dedicated_host
   enum tenancy_type: [:shared, :dedicated, :host, :unknown_tenancy]
+=end
+
+  def self.cost(p, r, m, os, opts = {})
+    p, r, m, os = p.downcase, r.downcase, m.downcase, os.downcase
+    opts.symbolize_keys!
+    opts.transform_values! {|x| x.to_s.downcase }
+
+    pre_installed_sw = opts[:pre_installed_sw] || 'na'
+    tenancy = opts[:tenancy] || 'shared'
+    price_unit = opts[:price_unit] || 'hourly'
+    contract = opts[:contract] || 'on_demand'
+    offering = opts[:offering]
+    prepay = opts[:prepay]
+
+    count = (opts[:count] || 1).to_i
+
+    if(contract != 'on_demand')
+      offering = opts[:offering] || 'standard'
+      prepay = opts[:prepay] || 'all'
+    end
+
+    if prepay == 'all'
+      cost = 0
+    else
+      params = {
+        provider: p,
+        region: r,
+        machine: m,
+        os: os,
+        pre_installed_sw: pre_installed_sw,
+        contract: contract,
+        tenancy: tenancy,
+        price_unit: price_unit,
+        offering: offering,
+        prepay: prepay,
+      }
+
+      ap params if opts[:debug] == 'info'
+      instances = InstanceType.where(params) 
+
+      if instances.count > 1
+        instances.each {|i| ap i}
+        return "ERROR: Too many instance types"
+      end
+
+      if instances.count == 0
+        return "ERROR: No such instance type"
+      end
+
+
+      inst = instances.first
+      cost = inst.price
+
+      ap inst if opts[:debug]
+    end
+
+
+    if ['ri_1y', 'ri_3y'].include?(contract) && opts[:prepay] != 'no'
+      params = {
+        provider: p,
+        region: r,
+        machine: m,
+        os: os,
+        pre_installed_sw: pre_installed_sw,
+        contract: contract,
+        prepay: prepay,
+        tenancy: tenancy,
+        offering: offering,
+        price_unit: 'upfront',
+      }
+      ap params if opts[:debug] == 'info'
+      inst2 = InstanceType.where(params).first
+      ap inst2 if opts[:debug]
+
+      prepay_cost = inst2.price
+
+      period = 1 if contract == 'ri_1y'
+      period = 3 if contract == 'ri_3y'
+
+      prepay_hourly = prepay_cost / (period * 365 * 24)
+      cost = cost + prepay_hourly
+
+    end
+
+    unit_cost = cost.round(3)
+    cost = cost * count
+
+    desc = [p, r, m, os, pre_installed_sw, contract, tenancy, prepay, price_unit, unit_cost.to_s, count.to_s].join(', ')
+
+    return desc, cost.round(3)
+  end
 
   def self.of_type(name)
-    mid = MachineType.find_by_name(name.to_s).id
-    where(machine_type_id: mid)
+    where(machine_name: name)
   end
 
   def self.load_azure_data
@@ -42,12 +129,12 @@ class InstanceType < ApplicationRecord
     p.machine_types.each {|m| m_list[m.name] = m.id}
 
     filename = "#{Rails.root}/db/raw/azure.csv"
-    CSV.foreach( filename) do |row| 
+    CSV.foreach( filename) do |row|
       next if row.size < 5
       row.map! {|c| c.downcase if c}
 
       if row[0]== 'meta'
-        # ROW of meta data 
+        # ROW of meta data
         region, os, offering, contract_type = row[1..4]
 
         if os == 'sql standard'
@@ -76,21 +163,20 @@ class InstanceType < ApplicationRecord
         end
 
         inst = p.instance_types.create(
-          region_id: r_list[region],
+          region: region,
           machine_type_id: m_list[machine],
-          os_type: os,
+          os: os,
           price: price.sub(/\$/, '').to_f,
-          offering_class: offering,
+          offering: offering,
           pre_installed_sw: sw,
-          unit: 'hourly',
-          contract_type: 'on_demand',
+          price_unit: 'hourly',
+          contract: 'on_demand',
           tenancy:  'shared',
-          prepay_type: 'prepay_no',
+          prepay: 'no',
         )
 #        ap inst #xxx
       end
     end
-
   end
 
 
@@ -115,9 +201,9 @@ class InstanceType < ApplicationRecord
     }
 
     purchase_option_map = {
-      "no upfront" => :prepay_no,
-      "partial upfront" => :prepay_partial,
-      "all upfront" => :prepay_all,
+      "no upfront" => 'no',
+      "partial upfront" => 'partial',
+      "all upfront" => 'all',
     }
 
     unit_map = {

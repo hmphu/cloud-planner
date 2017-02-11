@@ -10,9 +10,13 @@ title = 'azure lineage-m cost'
 # [servers] - data for server instance cost
 # provider, region  - common values which should be defined under [server]
 [common]
+debug='info'
 provider = 'azure'
 region = 'west us'
 os = 'windows'
+offering = 'standard'
+prepay = 'no'
+
 
 # You can define multiple server requirements unser [servers]
 # Here we are defining two types of requirements which are 'main' and 'db' 

@@ -19,7 +19,6 @@ end
 
 class Region < ApplicationRecord
   belongs_to :provider
-  has_many :instance_types
 
   # Global Areas : US, EU, AP(Asia Pacific), 
   #                SA(Aouth America), NA(North America) 

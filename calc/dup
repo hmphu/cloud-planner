@@ -10,6 +10,7 @@ title = 'lineage-m cost'
 # [servers] - data for server instance cost
 # provider, region  - common values which should be defined under [server]
 [common]
+debug = 'info'
 provider = 'aws'
 region = 'ap_seoul'
 
@@ -18,10 +19,15 @@ region = 'ap_seoul'
 # MANATORY : machine, os
 # OPTIONAL : count, sw, tenancy, reserved ...
 
-[servers.kr]
+[servers.1]
 machine = 'm4.xlarge'
 os = 'windows'
-count = 1
 contract = 'ri_3y'
-prepay_type = 'partial'
+prepay = 'partial'
+
+[servers.2]
+machine = 'm4.xlarge'
+os = 'windows'
+contract = 'ri_3y'
+prepay = 'all'
 
