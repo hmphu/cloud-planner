@@ -1,5 +1,17 @@
 require 'csv'
 
+class String
+  def snake_case
+    return downcase if match(/\A[A-Z]+\z/)
+      gsub("S/W", "sw").
+      gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
+      gsub(/([a-z])([A-Z])/, '\1_\2').
+      gsub('/', '_').
+      gsub(' ', '_').
+      downcase
+  end
+end
+
 class InstanceType < ApplicationRecord
 =begin
   enum os_type: [
@@ -63,15 +75,9 @@ class InstanceType < ApplicationRecord
       ap params if opts[:debug] == 'info'
       instances = InstanceType.where(params) 
 
-      if instances.count > 1
-        instances.each {|i| ap i}
-        return "ERROR: Too many instance types"
-      end
-
-      if instances.count == 0
-        return "ERROR: No such instance type"
-      end
-
+      instances.each {|i| ap i} if instances.count > 1 && opts[:debug]
+      return "ERROR: Too many instance types" if instances.count > 1
+      return "ERROR: No such instance type" if instances.count == 0
 
       inst = instances.first
       cost = inst.price
@@ -94,7 +100,13 @@ class InstanceType < ApplicationRecord
         price_unit: 'upfront',
       }
       ap params if opts[:debug] == 'info'
-      inst2 = InstanceType.where(params).first
+      instances = InstanceType.where(params)
+
+      instances.each {|i| ap i} if instances.count > 1 && opts[:debug]
+      return "ERROR: Too many instance types" if instances.count > 1
+      return "ERROR: No such instance type" if instances.count == 0
+
+      inst2 = instances.first
       ap inst2 if opts[:debug]
 
       prepay_cost = inst2.price
@@ -144,7 +156,7 @@ class InstanceType < ApplicationRecord
         end
 
         unless region_names.include? region
-          r = p.regions.create(name: region, provider_name: 'azure' )
+          r = Region.create(name: region, provider_name: 'azure' )
           region_names.append region
         end
       else
@@ -152,7 +164,7 @@ class InstanceType < ApplicationRecord
         machine, cores, memory, disk, price = row
 
         unless machine_names.include? machine
-          m = p.machine_types.create(
+          m = MachineType.create(
             name: machine,
             provider_name: 'azure',
             core_count: cores.to_i,
@@ -162,7 +174,8 @@ class InstanceType < ApplicationRecord
           machine_names.append machine
         end
 
-        inst = p.instance_types.create(
+        inst = InstanceType.create(
+          provider: 'azure',
           region: region,
           machine: machine, 
           os: os,
@@ -179,84 +192,143 @@ class InstanceType < ApplicationRecord
     end
   end
 
+  def self.load_aws_csv
+    cols = [
+      [18, "instance_type",],
+      [37, "operating_system",],
+      [63, "pre_installed_sw",],
+      [9, "price_per_unit",],
+      [8, "unit",],
+      [3, "term_type",],
+      [11, "lease_contract_length",],
+      [12, "purchase_option",],
+      [13, "offering_class",],
+      [16, "location",],
+      [21, "vcpu",],
+      [24, "memory",],
+      [25, "storage",],
+      [22, "physical_processor",],
+      [23, "clock_speed",],
+      [35, "tenancy",],
+      [38, "license_model",],
+      [0, "sku",],
+      [14, "product_family",],
+    ]
 
-  def self.load_aws_data
-    os_type_map = {
+    os_map = {
       "windows" => 'windows',
       "linux" => 'linux',
       "rhel" => 'rhel',
       "suse" => 'suse',
-      "na" => 'no sw',
     }
 
-    contract_type_map = {
-      "1yr no upfront"      => :ri_1y_no,
-      "1yr partial upfront" => :ri_1y_partial,
-      "1yr all upfront"     => :ri_1y_all,
-      "3yr no upfront"      => :ri_3y_no,
-      "3yr partial upfront" => :ri_3y_partial,
-      "3yr all upfront"     => :ri_3y_all,
-      "1yr" => :ri_1y,
-      "3yr" => :ri_3y,
+    contract_map = {
+      "1yr" => 'ri_1y',
+      "3yr" => 'ri_3y',
     }
 
-    purchase_option_map = {
+    prepay_map = { # prepay
       "no upfront" => 'no',
       "partial upfront" => 'partial',
       "all upfront" => 'all',
     }
 
-    unit_map = {
-      "hrs" => :hourly,
-      "quantity" => :upfront,
+    price_unit_map = {
+      "hrs" => 'hourly',
+      "quantity" => 'upfront',
     }
 
     tenancy_map = {
-      "shared" => :shared,
-      "dedicated" => :dedicated,
-      "host" => :host,
+      "shared" => 'shared',
+      "dedicated" => 'dedicated',
+      "host" => 'host',
     }
+    
+    region_map = {
+      "us east (ohio)" => "us_ohio",
+      "eu (frankfurt)" => "eu_frankfurt",
+      "asia pacific (seoul)" => "ap_seoul",
+      "asia pacific (singapore)" => "ap_singapore",
+      "asia pacific (sydney)" => "ap_sydney",
+      "us west (oregon)" => "us_oregon",
+      "south america (sao paulo)" => "sa_saopaulo",
+      "us east (n. virginia)" => "us_virginia",
+      "us west (n. california)" => "us_california",
+      "aws govcloud (us)" => "us_gov",
+      "eu (ireland)" => "eu_ireland",
+      "asia pacific (tokyo)" => "ap_tokyo",
+      "asia pacific (mumbai)" => "ap_mumbai",
+      "canada (central)" => "na_ca",
+      "eu (london)" => "eu_london",
+    }
+
+    load_only_these_regions = [
+      'us_ohio',
+    ]
 
     machine_names = MachineType.where(provider_name: 'aws').distinct.pluck(:name)
 
-    total_count = 0
-    Rgion.where(provider_name: 'aws').each do |region|
-      count = 0
+    count = 0
+    filename = "#{Rails.root}/db/raw/ec2.csv"
 
-      org_name = Region.aws_mapper.find_left(region.name)
-      raw_insts = HTTParty.get("http://localhost:3000/instances?location=#{org_name}")
+    CSV.foreach( filename, 
+                converters: :numeric, 
+                header_converters: lambda {|h| h.snake_case},
+                headers: true,
+                skip_lines: /^"Format|^"Disclaimer|^"Publication|^"Version|^"OfferCode/) do |row|
 
-      raw_insts.each do |ri|
-        h = {}
+      # XXX debug
+      #break if count > 20
 
-        # Ignore BYOL data. Linux price can be used.
-        next if ri['license_model'] == "bring your own license"
-
-        # SKIP Unknown machine type
-        next unless machine_names.include?(ri['instance_type'])
-
-        h[:provider] = 'aws'
-        h[:region] = region.name
-        h[:machine] = ri['instance_type']
-        h[:os] = os_type_map[ri["operating_system"]].to_s
-        h[:contract] = (contract_type_map[ri['lease_contract_length]']] || :on_demand).to_s
-        h[:prepay] = purchase_option_map[ri['purchase_option]']].to_s
-        h[:price] = ri['price_per_unit']
-        h[:price_unit] = unit_map[ri["unit"]].to_s
-        h[:tenancy] = tenancy_map[ri["tenancy"]].to_s
-        h[:sku] = ri['sku']
-        h[:software] = ri['pre_installed_sw']
-        h[:offering] = ri['offering_class'].to_s
-
-        new_inst  = region.instance_types.create(h)
-
-        count += 1
-        puts "#{region.name} - #{count}......" if count % 1000 == 0
+      h = {}
+      cols.each do |i, c|
+        row[i].downcase! if row[i].class == String
+        h[c] = row[i]
       end
 
-      puts "#{region.name} - #{count} Done."
-      total_count += count
-      puts "TOTAL - #{total_count}"
+
+      next unless ['compute instance', 'dedicated host'].include? h["product_family"]
+      next if h["instance_type"].nil?
+      next if h["price_per_unit"] == 0
+      next if h["license_model"] == "bring your own license"
+      unless machine_names.include?(h['instance_type'])
+        puts "Error: Unknown machine type. " + h['instance_type']
+        next
+      end
+
+      h2 = {}
+      h2[:provider] = 'aws'
+      h2[:machine] = h['instance_type']
+
+      h2[:region] = region_map[h["location"]]
+      # XXX for debuggging
+      next if load_only_these_regions.size > 0 && !load_only_these_regions.include?(h2[:region]) 
+      if h2[:region].nil? 
+        puts "Error: Unknown region" + h2[:region]
+        next
+      end
+
+      h2[:os] = os_map[h["operating_system"]]
+      h2[:tenancy] = tenancy_map[h["tenancy"]]
+
+      h2[:contract] = contract_map[h['lease_contract_length']] || 'on_demand'
+      h2[:prepay] = prepay_map[h['purchase_option']]
+
+      h2[:price_unit] = price_unit_map[h["unit"]]
+      h2[:price] = h['price_per_unit']
+
+      h2[:software] = h['pre_installed_sw']
+      h2[:software] = 'no sw' if h2[:software].nil? || h2[:software] == 'na'
+
+      h2[:offering] = h['offering_class'] || 'standard'
+      h2[:sku] = h['sku']
+
+      inst = InstanceType.create(h2)
+
+      count += 1
+      puts "Count: #{count}..." if count % 50 == 0
     end
+    puts "Total: #{count}"
   end
+
 end

@@ -19,20 +19,23 @@ namespace :raw_data do
 
   desc "load AWS EC2 instance_types"
   task aws_instances: :environment do
-    p = Provider.find_by_name('aws')
-    p.instance_types.delete_all
+    InstanceType.where(provider: 'aws').delete_all
     InstanceType.load_aws_data
+  end
+
+  desc "load AWS EC2 instance_types from csv"
+  task aws_csv: :environment do
+    InstanceType.where(provider: 'aws').delete_all
+    InstanceType.load_aws_csv
   end
 
   desc "load Azure Instance types"
   task azure_instances: :environment do
-    p = Provider.find_by_name('azure')
-
-    old_count = p.instance_types.count.to_s
-    p.instance_types.delete_all
+    old_count = InstanceType.where(provider: 'azure').count.to_s
+    InstanceType.where(provider: 'azure').delete_all
     puts old_count + " deleted"
 
     InstanceType.load_azure_data
-    puts p.instance_types.count.to_s + " created" 
+    puts InstanceType.where(provider: 'azure').count.to_s + " created" 
   end
 end
