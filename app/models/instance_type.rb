@@ -136,6 +136,7 @@ class InstanceType < ApplicationRecord
     m_list = {}
     region, os, sw, offering, contract= nil, nil, nil, nil
 
+    p = Provider.find_by_name('azure')
     region_names = Region.where(provider_name: 'azure').pluck(:name)
     machine_names = MachineType.where(provider_name: 'azure').pluck(:name)
 
@@ -170,6 +171,7 @@ class InstanceType < ApplicationRecord
             core_count: cores.to_i,
             memory_size: memory.to_f,
             disk_size: disk.to_i,
+            provider_id: p.id,
           )
           machine_names.append machine
         end

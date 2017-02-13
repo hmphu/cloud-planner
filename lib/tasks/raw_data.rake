@@ -35,6 +35,8 @@ namespace :raw_data do
     InstanceType.where(provider: 'azure').delete_all
     puts old_count + " deleted"
 
+    MachineType.where(provider_name: 'azure').delete_all
+
     InstanceType.load_azure_data
     puts InstanceType.where(provider: 'azure').count.to_s + " created" 
   end
