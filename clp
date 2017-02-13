@@ -9,6 +9,9 @@ then
 elif [ "$1" = "machines"  ] || [ "$1" = "m"  ]
 then
     rake "machines[$2]"
+elif [ "$1" = "lookup"  ] || [ "$1" = "l"  ]
+then
+    rake "lookup[$2, $3, $4]"
 else
-    echo 'helo'
+    echo 'clp usage: ....'
 fi

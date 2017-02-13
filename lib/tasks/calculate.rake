@@ -36,3 +36,9 @@ task :machines, [:name] =>  :environment do |t, args|
   l2 = list.sort {|x, y| x.name <=> y.name}
   l2.each {|i| puts i.desc }
 end
+
+desc "lookup matching instances"
+task :lookup, [:cores, :memory, :provider] => :environment do |t, args|
+  list = MachineType.lookup(args[:cores], args[:memory], args[:provider])
+  list.each { |i| puts i.desc }
+end
