@@ -243,7 +243,7 @@ class InstanceType < ApplicationRecord
       "dedicated" => 'dedicated',
       "host" => 'host',
     }
-    
+
     region_map = {
       "us east (ohio)" => "us_ohio",
       "eu (frankfurt)" => "eu_frankfurt",

@@ -13,4 +13,8 @@ class MachineType < ApplicationRecord
     end
   end
 
+  def desc
+    "#{provider_name.ljust(10)} #{name.to_s.ljust(15)} #{core_count.to_s.rjust(12)} cores #{memory_size.to_s.rjust(15)} GB\t#{disk_size.to_s.rjust(15)} GB"
+  end
+
 end
