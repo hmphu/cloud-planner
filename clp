@@ -3,6 +3,9 @@
 if [ "$1" = "calc"  ] || [ "$1" = "c"  ]
 then
     rake "calc[$2]"
+elif [ "$1" = "info"  ] || [ "$1" = "i"  ]
+then
+    rake "info[$2]"
 elif [ "$1" = "regions"  ] || [ "$1" = "r"  ]
 then
     rake "regions[$2]"

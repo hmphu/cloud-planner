@@ -30,6 +30,16 @@ task :calc, [:infile] =>  :environment do |t, args|
   puts "#{'TOTAL'.ljust(10)} $#{total_cost.round(2).to_s(:delimited).rjust(8)} ($#{monthly_total.to_i.to_s(:delimited).rjust(10)}/month)\n".blue
 end
 
+desc "info cloud provider"
+task :info, [:name] =>  :environment do |t, args|
+  puts "Machine Types".blue
+  Rake::Task["machines"].invoke(args[:name])
+  puts "Regions".blue
+  Rake::Task["regions"].invoke(args[:name])
+  puts "Softwares".blue
+  Rake::Task["software"].invoke(args[:name])
+end
+
 desc "list of regions"
 task :regions, [:name] =>  :environment do |t, args|
   list = InstanceType.where(provider: args[:name]).distinct.pluck(:region)
