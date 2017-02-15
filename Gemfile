@@ -59,3 +59,5 @@ gem 'httparty'
 gem "awesome_print", require:"ap"
 
 gem 'toml-rb', require:"toml"
+
+gem 'colored'

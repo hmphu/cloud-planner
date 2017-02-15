@@ -13,6 +13,7 @@ class String
 end
 
 class InstanceType < ApplicationRecord
+  belongs_to :machine_type
 =begin
   enum os_type: [
     :linux, :windows,     :suse,
@@ -48,8 +49,8 @@ class InstanceType < ApplicationRecord
     contract = opts[:contract] || 'on_demand'
     offering = opts[:offering]
     prepay = opts[:prepay]
-
     count = (opts[:count] || 1).to_i
+
 
     if(contract != 'on_demand')
       offering = opts[:offering] || 'standard'
@@ -73,7 +74,7 @@ class InstanceType < ApplicationRecord
       }
 
       ap params if opts[:debug] == 'info'
-      instances = InstanceType.where(params) 
+      instances = InstanceType.where(params)
 
       instances.each {|i| ap i} if instances.count > 1 && opts[:debug]
       return "ERROR: Too many instance types" if instances.count > 1
@@ -122,7 +123,10 @@ class InstanceType < ApplicationRecord
     unit_cost = cost.round(3)
     cost = cost * count
 
-    desc = [p, r, m, os, software, contract, tenancy, prepay, price_unit, unit_cost.to_s, count.to_s].join(', ')
+    mt = MachineType.where(name: m, provider_name: p).first
+
+    desc = [ p, r, m, mt.core_count, mt.memory_size, os, software, contract, tenancy, prepay, price_unit, unit_cost, count]
+    desc = desc.map{|s| s.class == String ? s.to_s.ljust(10) : s.to_s.rjust(7)}.join(' ')
 
     return desc, cost.round(3)
   end

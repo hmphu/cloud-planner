@@ -1,5 +1,6 @@
 class MachineType < ApplicationRecord
   belongs_to :provider
+  has_many :instance_types
   
   def self.load_aws_machine_types
     aws = Provider.find_by_name('aws').id

@@ -12,6 +12,9 @@ then
 elif [ "$1" = "lookup"  ] || [ "$1" = "l"  ]
 then
     rake "lookup[$2, $3, $4]"
+elif [ "$1" = "software"  ] || [ "$1" = "s"  ]
+then
+    rake "software[$2]"
 else
     echo 'clp usage: ....'
 fi
