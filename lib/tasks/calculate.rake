@@ -15,14 +15,14 @@ task :calc, [:infile] =>  :environment do |t, args|
 
     desc, cost = InstanceType.cost(v['provider'], v['region'], v['machine'], v['os'], v)
     if cost
-      puts "#{name.upcase}\t$#{cost.to_s} ($#{(cost * 31 * 24).to_i.to_s(:delimited)}/month)".blue
+      puts "#{name.upcase.ljust(10)} $#{('%.2f' % cost).rjust(8)} ($#{(cost * 31 * 24).to_i.to_s(:delimited).rjust(10)}/month)".blue
       puts desc+"\n"
       total_cost += cost
     else
       puts desc
     end
   end
-  puts "TOTAL\t$#{total_cost.round(3).to_s(:delimited)} ($#{(total_cost * 31 * 24).to_i.to_s(:delimited)}/month)\n".blue
+  puts "#{'TOTAL'.ljust(10)} $#{total_cost.round(2).to_s(:delimited).rjust(8)} ($#{(total_cost * 31 * 24).to_i.to_s(:delimited).rjust(10)}/month)\n".blue
 end
 
 desc "list of regions"
