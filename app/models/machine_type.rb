@@ -1,7 +1,17 @@
 class MachineType < ApplicationRecord
   belongs_to :provider
   has_many :instance_types
-  
+
+  def sce_os_licence_count
+    unit_core_count = 2
+    licence_count = self.core_count / unit_core_count
+  end
+
+  def sce_sql_licence_count
+    unit_core_count = 2
+    licence_count = self.core_count / unit_core_count
+  end
+
   def self.load_aws_machine_types
     aws = Provider.find_by_name('aws').id
     aws.machine_types.delete_all

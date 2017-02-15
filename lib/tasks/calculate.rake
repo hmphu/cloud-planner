@@ -7,22 +7,27 @@ task :calc, [:infile] =>  :environment do |t, args|
   servers = toml['servers']
 
   total_cost = 0
+  monthly_hour = 31*24
+
   c = {}
   toml['common'].each { |k, v| c[k] = v }
 
   toml['servers'].each do |name, v|
     c.each { |i,j| v[i] = v[i] || j }
 
+    monthly_hour = Provider.monthly_hours(v['provider'])
     desc, cost = InstanceType.cost(v['provider'], v['region'], v['machine'], v['os'], v)
     if cost
-      puts "#{name.upcase.ljust(10)} $#{('%.2f' % cost).rjust(8)} ($#{(cost * 31 * 24).to_i.to_s(:delimited).rjust(10)}/month)".blue
-      puts desc+"\n"
+      monthly_cost =  cost * monthly_hour
+      puts "#{name.upcase.ljust(10)} $#{('%.2f' % cost).rjust(8)} ($#{monthly_cost.to_i.to_s(:delimited).rjust(10)}/month)".blue
+      puts desc
       total_cost += cost
     else
       puts desc
     end
   end
-  puts "#{'TOTAL'.ljust(10)} $#{total_cost.round(2).to_s(:delimited).rjust(8)} ($#{(total_cost * 31 * 24).to_i.to_s(:delimited).rjust(10)}/month)\n".blue
+  monthly_total =  total_cost * monthly_hour
+  puts "#{'TOTAL'.ljust(10)} $#{total_cost.round(2).to_s(:delimited).rjust(8)} ($#{monthly_total.to_i.to_s(:delimited).rjust(10)}/month)\n".blue
 end
 
 desc "list of regions"

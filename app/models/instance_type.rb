@@ -14,29 +14,6 @@ end
 
 class InstanceType < ApplicationRecord
   belongs_to :machine_type
-=begin
-  enum os_type: [
-    :linux, :windows,     :suse,
-    :rhel,  :windows_sql, :na,
-    :unknown_os
-  ]
-
-  enum contract_type: [
-    :on_demand,
-    :ri_1y_no, :ri_1y_partial, :ri_1y_all,
-    :ri_3y_no, :ri_3y_partial, :ri_3y_all,
-    :ri_1y, :ri_3y,
-    :unknown_contract
-  ]
-
-  enum prepay_type: [ :prepay_no, :prepay_partial, :prepay_all ]
-
-  enum unit: [:hourly, :upfront, :unknown_unit]
-  enum offering_class: [:standard, :convertible ]
-
-  # :dedicated -> dedicated_instance, :host -> dedicated_host
-  enum tenancy_type: [:shared, :dedicated, :host, :unknown_tenancy]
-=end
 
   def self.cost(p, r, m, os, opts = {})
     p, r, m, os = p.downcase, r.downcase, m.downcase, os.downcase
@@ -56,6 +33,12 @@ class InstanceType < ApplicationRecord
       offering = opts[:offering] || 'standard'
       prepay = opts[:prepay] || 'all'
     end
+
+    # check BYOL
+    org_os = os
+    org_software = software
+    os = 'linux' if opts[:byol_os]
+    software = 'no sw' if opts[:byol_sql]
 
     if prepay == 'all'
       cost = 0
@@ -83,9 +66,14 @@ class InstanceType < ApplicationRecord
       inst = instances.first
       cost = inst.price
 
+
       ap inst if opts[:debug]
     end
 
+    # add BYOL cost
+    mt = MachineType.where(name: m, provider_name: p).first
+    cost = cost + mt.sce_os_licence_count * opts[:byol_os_unit_price].to_f if opts[:byol_os]
+    cost = cost + mt.sce_sql_licence_count * opts[:byol_sql_unit_price].to_f if opts[:byol_sql]
 
     if ['ri_1y', 'ri_3y'].include?(contract) && opts[:prepay] != 'no'
       params = {
@@ -117,7 +105,6 @@ class InstanceType < ApplicationRecord
 
       prepay_hourly = prepay_cost / (period * 365 * 24)
       cost = cost + prepay_hourly
-
     end
 
     unit_cost = cost.round(3)
@@ -125,6 +112,8 @@ class InstanceType < ApplicationRecord
 
     mt = MachineType.where(name: m, provider_name: p).first
 
+    os = org_os + '(B)' if opts[:byol_os]
+    software = org_software + '(B)' if opts[:byol_sql]
     desc = [ p, r, m, mt.core_count, mt.memory_size, os, software, contract, tenancy, prepay, price_unit, unit_cost, count]
     desc = desc.map{|s| s.class == String ? s.to_s.ljust(10) : s.to_s.rjust(7)}.join(' ')
 
@@ -169,7 +158,7 @@ class InstanceType < ApplicationRecord
         machine, cores, memory, disk, price = row
 
         unless machine_names.include? machine
-          m = MachineType.create(
+          m = MachineType.create!(
             name: machine,
             provider_name: 'azure',
             core_count: cores.to_i,
@@ -178,12 +167,14 @@ class InstanceType < ApplicationRecord
             provider_id: p.id,
           )
           machine_names.append machine
+        else
+          m = MachineType.where(provider_name: 'azure', name: machine).first
         end
 
-        inst = InstanceType.create(
+        inst = m.instance_types.create!(
           provider: 'azure',
           region: region,
-          machine: machine, 
+          machine: machine,
           os: os,
           price: price.sub(/\$/, '').to_f,
           offering: offering,
