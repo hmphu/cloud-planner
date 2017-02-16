@@ -18,16 +18,23 @@ task :calc, [:infile] =>  :environment do |t, args|
     monthly_hour = Provider.monthly_hours(v['provider'])
     desc, cost = InstanceType.cost(v['provider'], v['region'], v['machine'], v['os'], v)
     if cost
-      monthly_cost =  cost * monthly_hour
-      puts "#{name.upcase.ljust(10)} $#{('%.2f' % cost).rjust(8)} ($#{monthly_cost.to_i.to_s(:delimited).rjust(10)}/month)".blue
+      monthly_cost =  (cost * monthly_hour).to_i
+      puts ["%-10s" % name.upcase,
+            "$%8.2f" % cost,
+            "($%10s/month)" % monthly_cost.to_s(:delimited)
+      ].join(' ').blue
+
       puts desc
       total_cost += cost
     else
       puts desc
     end
   end
-  monthly_total =  total_cost * monthly_hour
-  puts "#{'TOTAL'.ljust(10)} $#{total_cost.round(2).to_s(:delimited).rjust(8)} ($#{monthly_total.to_i.to_s(:delimited).rjust(10)}/month)\n".blue
+  monthly_total =  (total_cost * monthly_hour).to_i
+  puts ["%-10s" % 'TOTAL',
+        "$%8.2f" % total_cost.round(2),
+        "($%10s/month)" % monthly_total.to_s(:delimited)
+  ].join(' ').blue
 end
 
 desc "info cloud provider"
