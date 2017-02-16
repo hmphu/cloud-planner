@@ -25,7 +25,7 @@ class InstanceType < ApplicationRecord
     price_unit = opts[:price_unit] || 'hourly'
     contract = opts[:contract] || 'on_demand'
     offering = opts[:offering]
-    prepay = opts[:prepay]
+    prepay = opts[:prepay] || 'no'
     count = (opts[:count] || 1).to_i
 
 
@@ -34,13 +34,21 @@ class InstanceType < ApplicationRecord
       prepay = opts[:prepay] || 'all'
     end
 
+    if contract == 'cpp1y'
+      contract = 'on_demand'
+      prepay = 'no'
+      cpp1y = true
+    else
+      cpp1y = false
+    end
+
     # check BYOL
     org_os = os
     org_software = software
     os = 'linux' if opts[:byol_os]
     software = 'no sw' if opts[:byol_sql]
 
-    if prepay == 'all'
+    if prepay == 'all' 
       cost = 0
     else
       params = {
@@ -66,6 +74,10 @@ class InstanceType < ApplicationRecord
       inst = instances.first
       cost = inst.price
 
+      if cpp1y
+        # XXX cpp1y rate is NOT official 
+        cost = cost * 0.59
+      end
 
       ap inst if opts[:debug]
     end
@@ -114,6 +126,8 @@ class InstanceType < ApplicationRecord
 
     os = org_os + '(B)' if opts[:byol_os]
     software = org_software + '(B)' if opts[:byol_sql]
+    contract, prepay = 'cpp1y', 'all' if cpp1y
+
     desc = [ p, r, m, mt.core_count, mt.memory_size, os, software, contract, tenancy, prepay, price_unit, unit_cost, count]
     desc = desc.map{|s| s.class == String ? s.to_s.ljust(10) : s.to_s.rjust(7)}.join(' ')
 
@@ -309,7 +323,7 @@ class InstanceType < ApplicationRecord
       h2[:tenancy] = tenancy_map[h["tenancy"]]
 
       h2[:contract] = contract_map[h['lease_contract_length']] || 'on_demand'
-      h2[:prepay] = prepay_map[h['purchase_option']]
+      h2[:prepay] = prepay_map[h['purchase_option']] || 'no'
 
       h2[:price_unit] = price_unit_map[h["unit"]]
       h2[:price] = h['price_per_unit']
