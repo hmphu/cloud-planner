@@ -43,13 +43,6 @@ GEM
     builder (3.2.3)
     byebug (9.0.6)
     citrus (3.0.2)
-    coffee-rails (4.2.1)
-      coffee-script (>= 2.2.0)
-      railties (>= 4.0.0, < 5.2.x)
-    coffee-script (2.4.1)
-      coffee-script-source
-      execjs
-    coffee-script-source (1.12.2)
     colored (1.2)
     concurrent-ruby (1.0.4)
     debug_inspector (0.0.2)
@@ -142,13 +135,11 @@ GEM
     tilt (2.0.5)
     toml-rb (0.3.15)
       citrus (~> 3.0, > 3.0)
-    turbolinks (5.0.1)
-      turbolinks-source (~> 5)
-    turbolinks-source (5.0.0)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
     uglifier (3.0.4)
       execjs (>= 0.3.0, < 3)
+    vuejs-rails (2.1.10)
     web-console (3.4.0)
       actionview (>= 5.0)
       activemodel (>= 5.0)
@@ -164,7 +155,6 @@ PLATFORMS
 DEPENDENCIES
   awesome_print
   byebug
-  coffee-rails (~> 4.2)
   colored
   httparty
   jbuilder (~> 2.5)
@@ -177,9 +167,9 @@ DEPENDENCIES
   spring-watcher-listen (~> 2.0.0)
   sqlite3
   toml-rb
-  turbolinks (~> 5)
   tzinfo-data
   uglifier (>= 1.3.0)
+  vuejs-rails
   web-console (>= 3.3.0)
 
 BUNDLED WITH

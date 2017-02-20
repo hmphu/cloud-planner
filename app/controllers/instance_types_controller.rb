@@ -4,7 +4,7 @@ class InstanceTypesController < ApplicationController
   # GET /instance_types
   # GET /instance_types.json
   def index
-    @instance_types = InstanceType.all
+    @instance_types = InstanceType.all.limit(10)
   end
 
   # GET /instance_types/1

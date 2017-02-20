@@ -18,12 +18,8 @@
   <tbody>
     <% @instance_types.each do |instance_type| %>
       <tr>
-        <td><%= instance_type.provider_id %></td>
-        <td><%= instance_type.region_id %></td>
-        <td><%= instance_type.machine_type_id %></td>
-        <td><%= instance_type.os_type %></td>
+        <td><%= instance_type.os%></td>
         <td><%= instance_type.price %></td>
-        <td><%= instance_type.price_1y %></td>
         <td><%= link_to 'Show', instance_type %></td>
         <td><%= link_to 'Edit', edit_instance_type_path(instance_type) %></td>
         <td><%= link_to 'Destroy', instance_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>

@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'plans/calculate'
+
   resources :regions
   resources :instance_types
   resources :machine_types
