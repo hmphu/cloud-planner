@@ -1,0 +1,12 @@
+<%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
+<h1>Plans#hybrid</h1>
+
+<div>
+  <%= column_chart @simul_data, 
+    stacked: true,
+    colors: ["green", "#FF0000", "blue"], 
+    library: {backgroundColor: "#FFF", height: 265} %>
+</div>
+
+
+

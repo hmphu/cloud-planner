@@ -64,3 +64,6 @@ gem 'toml-rb', require:"toml"
 gem 'colored'
 
 gem 'vuejs-rails'
+
+gem 'chart-js-rails'
+gem 'chartkick'

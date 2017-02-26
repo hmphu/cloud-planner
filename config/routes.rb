@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   get 'plans/calculate'
+  get 'plans/hybrid'
 
   resources :regions
   resources :instance_types
