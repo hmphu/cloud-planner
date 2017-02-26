@@ -142,7 +142,6 @@ def simulate(idc_cost_ratio, idc_waste_ratio, phase1_length, show_graph = false)
   traffic = make_traffic(phases)
 
   costs = {}
-  rates = []
   (0..200).step(20) do |rate|
     costs["idc_"+rate.to_s] =  hybrid_cost(traffic, rate/100.0, idc_cost_ratio, idc_waste_ratio, show_graph)
   end
@@ -158,13 +157,21 @@ def simulate(idc_cost_ratio, idc_waste_ratio, phase1_length, show_graph = false)
   puts
 end
 
-simulate(0.33, 0.33, 3)
-simulate(0.33, 0.33, 2, false)
-simulate(0.33, 0.33, 1)
-simulate(0.33, 0.33, 0, false)
 
-#simulate(0.33, 0.2, 3)
-#simulate(0.33, 0.2, 2)
-#simulate(0.33, 0.2, 1)
-#simulate(0.33, 0.2, 0, false)
+# IDC unit cost per aws unit cost
+idc_cost = 0.33
+
+# waste ratio of available servers in IDC
+idc_waste = 0.33
+
+
+# do simulation for variable 'g'rowth period (months)
+(0..3).each { |g| simulate(idc_cost, idc_waste, g, false) }
+
+#simulate(idc_cost, idc_waste, 2, true)
+#simulate(idc_cost, idc_waste, 1, false)
+#simulate(idc_cost, idc_waste, 0, false)
+
+
+
 
