@@ -1,3 +1,5 @@
+require 'ap'
+
 module PlansHelper
 
   def networth_data
@@ -8,22 +10,23 @@ module PlansHelper
     ]
   end
 
-  def chart_data2
-    {
-        labels: ['Item 1', 'Item 2', 'Item 3'],
-        datasets: [
-            {
-                type: 'bar',
-                label: 'Bar Component',
-                data: [10, 20, 30],
-            },
-            {
-                type: 'line',
-                label: 'Line Component',
-                data: [30, 20, 10],
-            }
-        ]
-    }
+  def transfrom_to_chart_data(org)
+    data = []
+
+    aws = { name: 'aws',
+            data: org.map {|d| [d[0], d[1][:aws]]}}
+    idc = { name: 'idc',
+            data: org.map {|d| [d[0], d[1][:idc]]}}
+    waste = { name: 'waste',
+            data: org.map {|d| [d[0], d[1][:waste]]}}
+
+    data.push idc
+    data.push waste
+    data.push aws
+
+    data
   end
+
+
 
 end

@@ -1,12 +1,16 @@
 <%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
-<h1>Plans#hybrid</h1>
+<h1>Hybrid Cloud -  Usage Simutaion</h1>
 
+<h2> IDC cost rate: <%= @idc_cost%>, IDC waste rate: <%= @idc_waste %> </h2>
+<% @simulations.each do |simul| %>
 <div>
-  <%= column_chart @simul_data, 
+<h3> Inital Growth: <%=simul[:month]%> months </h3>
+  <%= column_chart transfrom_to_chart_data(simul[:data]),
     stacked: true,
-    colors: ["green", "#FF0000", "blue"], 
+    colors: ["blue", "#555555", "red"], 
     library: {backgroundColor: "#FFF", height: 265} %>
 </div>
+<% end %>
 
 
 

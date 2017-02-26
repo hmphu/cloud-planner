@@ -115,12 +115,7 @@ module HybridSimulator
 
     (0..200).step(20) do |rate|
       aiw =  hybrid_cost(traffic, rate/100.0, idc_cost_ratio, idc_waste_ratio, show_graph)
-#      data.push({ name: "idc_"+rate.to_s,
-#                  data: [['aws', aiw[0]], ['idc', aiw[1]], ['waste', aiw[2]]]
-      lab = 'idc_'+rate.to_s
-      data.push({ name: 'aws', data: [[lab, aiw[0]]]})
-      data.push({ name: 'idc', data: [[lab, aiw[1]]]})
-      data.push({ name: 'waste', data: [[lab, aiw[2]]]})
+      data.push([["idc_"+rate.to_s], {aws: aiw[0], idc: aiw[1], waste: aiw[2]}])
     end
 
     return data
