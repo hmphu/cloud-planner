@@ -111,14 +111,14 @@ module HybridSimulator
     phases = make_phases(phase1_length)
     traffic = make_traffic(phases)
 
-    data = []
+    costs = []
 
     (0..200).step(20) do |rate|
       aiw =  hybrid_cost(traffic, rate/100.0, idc_cost_ratio, idc_waste_ratio, show_graph)
-      data.push([["idc_"+rate.to_s], {aws: aiw[0], idc: aiw[1], waste: aiw[2]}])
+      costs.push([[rate.to_s+"%"], {aws: aiw[0], idc: aiw[1], waste: aiw[2]}])
     end
 
-    return data
+    return costs, traffic
   end
 end
 

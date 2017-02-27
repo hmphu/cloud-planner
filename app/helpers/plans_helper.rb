@@ -2,15 +2,7 @@ require 'ap'
 
 module PlansHelper
 
-  def networth_data
-    [
-      {name: "traffic", data: {"t1": 10532.32, "c1": 0,  "t2": 8900}},
-      {name: "aws", data: {"c1": 6979.53, "c2": 4500}}, 
-      {name: "idc", data: {"c1": 6979.53, "c2": 4500}}, 
-    ]
-  end
-
-  def transfrom_to_chart_data(org)
+  def transfrom_cost_data(org)
     data = []
 
     aws = { name: 'aws',
@@ -25,6 +17,20 @@ module PlansHelper
     data.push aws
 
     data
+  end
+
+  def transfrom_traffic_data(org)
+    tbd =  []
+    org.each_with_index do | val, index |
+      tbd.push([index, val])
+    end
+
+    data = [{ 
+      name: 'traffic',
+      data: tbd,
+    }]
+
+    return data
   end
 
 

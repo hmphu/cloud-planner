@@ -9,9 +9,11 @@ class PlansController < ApplicationController
 
     @simulations = []
     (0..3).each do |m|
+      costs, traffic = HybridSimulator.simulate(@idc_cost, @idc_waste, m)
       @simulations.push({
         month: m,
-        data: HybridSimulator.simulate(@idc_cost, @idc_waste, m)
+        data: costs,
+        traffic: traffic,
       })
     end
   end
