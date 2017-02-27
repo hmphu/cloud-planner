@@ -141,17 +141,17 @@ def simulate(idc_cost_ratio, idc_waste_ratio, phase1_length, show_graph = false)
   traffic = make_traffic(phases)
 
   costs = {}
-  (0..200).step(20) do |rate|
+  (0..200).step(10) do |rate|
     costs["idc_"+rate.to_s] =  hybrid_cost(traffic, rate/100.0, idc_cost_ratio, idc_waste_ratio, show_graph)
   end
 
   max = 0
-  costs.each { |name, costs| max = costs.sum if costs.sum > max }
+  costs.each { |name, costs| max = costs.reduce(:+) if costs.reduce(:+) > max }
 
 
   printf "%-15s %10s %6s %10s %10s %10s\n", 'IDC-RATIO', 'TOTAL', '(RATE)', 'AWS', 'IDC', 'WASTE'
   costs.each do |name, costs|
-    printf "%-15s %10.2f (%3d%%) %10.2f %10.2f %10.2f\n", name, costs.sum, (costs.sum*100/max).to_i, costs[0], costs[1], costs[2]
+    printf "%-15s %10.2f (%3d%%) %10.2f %10.2f %10.2f\n", name, costs.reduce(:+), (costs.reduce(:+)*100/max).to_i, costs[0], costs[1], costs[2]
   end
   puts
 end
