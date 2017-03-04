@@ -43,6 +43,8 @@ task :info, [:name] =>  :environment do |t, args|
   Rake::Task["machines"].invoke(args[:name])
   puts "Regions".blue
   Rake::Task["regions"].invoke(args[:name])
+  puts "OS".blue
+  Rake::Task["os"].invoke(args[:name])
   puts "Softwares".blue
   Rake::Task["software"].invoke(args[:name])
 end
@@ -50,6 +52,13 @@ end
 desc "list of regions"
 task :regions, [:name] =>  :environment do |t, args|
   list = InstanceType.where(provider: args[:name]).distinct.pluck(:region)
+  list.sort.each {|i| puts "#{args[:name].ljust(10)} #{i}"}
+end
+
+desc "list of os"
+task :os, [:name] =>  :environment do |t, args|
+  list = InstanceType.where(provider: args[:name]).distinct.pluck(:os)
+  list.map! {|x| x.nil? ? '' : x}
   list.sort.each {|i| puts "#{args[:name].ljust(10)} #{i}"}
 end
 
