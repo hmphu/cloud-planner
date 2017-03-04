@@ -24,9 +24,10 @@ class InstanceType < ApplicationRecord
     tenancy = opts[:tenancy] || 'shared'
     price_unit = opts[:price_unit] || 'hourly'
     contract = opts[:contract] || 'on_demand'
-    offering = opts[:offering]
-    prepay = opts[:prepay] || 'no'
     count = (opts[:count] || 1).to_i
+
+    offering = opts[:offering] || 'standard'
+    prepay = opts[:prepay] || 'no'
 
 
     if(contract != 'on_demand')
