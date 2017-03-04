@@ -19,5 +19,7 @@ elif [ "$1" = "software"  ] || [ "$1" = "s"  ]
 then
     rake "software[$2]"
 else
-    echo 'clp usage: ....'
+    echo 'clp calc <input file>'
+    echo 'clp info [aws|azure]'
+    echo 'clp lookup <cores> <memory> <provider(optional)>'
 fi
