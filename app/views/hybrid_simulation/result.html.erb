@@ -1,0 +1,57 @@
+<%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
+
+
+<div class='card'>
+<div class='card-content'>
+  <h4> 시뮬레이션 조건  
+    <%= link_to hybrid_simulation_new_path, class: 'red-text text-lighten-1', style: 'font-size: 1.2rem' do %>
+      <i class="material-icons">mode_edit</i>
+    <% end %>
+  </h4>
+
+  <h5 class='blue-text' style='font-weight: 300;'> 
+    IDC Cost 지표: <%= (@idc_cost * 100).to_i%>%,   
+    IDC Waste 지표: <%= (@idc_waste * 100).to_i%>%
+  </h5>
+</div>
+</div>
+
+<% @simulations.each do |simul| %>
+<div class='card'>
+<div class='card-content'>
+
+  <% min = find_min_cost(simul[:data]) %>
+<div class='row'>
+  <h5> <%=simul[:month]%> 개월 성장 후 하락하는 경우,  <br />
+    IDC 최적비율은 Peak 트래픽의 <%= min[0][0] %> 
+  <!--
+  -> ALL-IN 대비 <%= rate_vs_allin(simul[:data])%>%
+  -->
+  </h5>
+<!--
+<h6> Initial Growth: <%=simul[:month]%> months </h6>
+-->
+  <div class='col s6'>
+    <h6> Game Traffic Over Months </h6>
+    <%= column_chart transfrom_traffic_data(simul[:traffic]),
+      stacked: true,
+      xtitle: 'Month',
+      colors: ["#00897b"], 
+      library: {backgroundColor: "#FFF", height: 265} %>
+  </div>
+
+  <div class='col s6'>
+    <h6> Estimated Total Costs Of Lifetime</h6>
+    <%= column_chart transfrom_cost_data(simul[:data]),
+      stacked: true,
+      xtitle: 'IDC capacity / Peak Traffic',
+      colors: ["#1565c0", "#0d47a1", "red"], 
+      library: {backgroundColor: "#FFF", height: 265} %>
+  </div>
+</div>
+
+</div>
+</div>
+<% end %>
+
+<h8> Calculated By @kjh </h8>

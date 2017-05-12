@@ -10,14 +10,14 @@
   <%= column_chart transfrom_traffic_data(simul[:traffic]),
     stacked: true,
     xtitle: 'Month',
-    colors: ["cyan"], 
+    colors: ["#00897b"], 
     library: {backgroundColor: "#FFF", height: 265} %>
 
 <h4> * Estimated Total Cost </h4>
   <%= column_chart transfrom_cost_data(simul[:data]),
     stacked: true,
     xtitle: 'Initial IDC capacity / Peak Traffic',
-    colors: ["blue", "#555555", "red"], 
+    colors: ["#1565c0", "#0d47a1", "red"], 
     library: {backgroundColor: "#FFF", height: 265} %>
 </div>
 <% end %>

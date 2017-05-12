@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>CloudPlanner</title>
+    <title>Hybrid Cloud Simuation</title>
     <%= csrf_meta_tags %>
     <%= stylesheet_link_tag    'application', media: 'all' %>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
@@ -15,6 +17,11 @@
 
   <body>
     <div class='container'>
+
+<h2 class='card-title' style='font-size: 2.8rem;'> 
+<%= image_tag 'noun_975417_cc.png', size: "64x64", style: "vertical-align: middle;" %>
+  Hybrid Cloud 최적 비율 
+</h2>
       <%= yield %>
     </div>
 

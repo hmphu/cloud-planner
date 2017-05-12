@@ -19,6 +19,22 @@ module PlansHelper
     data
   end
 
+  def find_min_cost(org)
+    min = org.min {|a, b| a[1][:aws] + a[1][:idc] + a[1][:waste] <=> b[1][:aws] + b[1][:idc] + b[1][:waste] }
+
+    min
+  end
+
+  def rate_vs_allin(org)
+    min = find_min_cost(org)
+    allin= org[0]
+
+    min_cost = min[1][:aws] + min[1][:idc] + min[1][:waste]
+    allin_cost = allin[1][:aws] + allin[1][:idc] + allin[1][:waste]
+
+   (min_cost * 100 / allin_cost).to_i
+  end
+
   def transfrom_traffic_data(org)
     tbd =  []
     org.each_with_index do | val, index |

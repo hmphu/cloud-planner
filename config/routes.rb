@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   get 'plans/calculate'
   get 'plans/hybrid'
 
+  get 'hybrid_simulation/new'
+  get 'hybrid_simulation/result'
+
   resources :regions
   resources :instance_types
   resources :machine_types

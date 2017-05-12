@@ -13,3 +13,20 @@
  *= require_tree .
  *= require_self
  */
+
+#simulate label {
+  margin-bottom: 20px;
+  display: block;
+}
+
+#simulate input.select-dropdown {
+  color: #26a69a;
+
+}
+
+#simulate input {
+  font-size: 25px;
+}
+
+
+

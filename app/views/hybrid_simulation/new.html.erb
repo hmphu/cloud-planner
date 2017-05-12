@@ -1,0 +1,44 @@
+
+<div class='card'>
+
+<%= form_tag("/hybrid_simulation/result", method: 'get', class:'simul_form', id: 'simulate') do %>
+<div class='card-content'>
+  <h2 class='card-title' style='font-size: 2.0rem;'> IDC 운영 지표</h2>
+  <div class='row'>
+    <div class='input-field col s6 offset-s1'>
+      <h5 class='blue-text'> IDC Cost 지표: </h5>
+      <p class='black-text' style=''> 퍼블릭클라우드 대비 IDC의 비용 비율</p>
+    </div>
+    <div class='input-field col s4'>
+      <%= select_tag(:idc_cost, options_for_select(
+        (1..10).to_a.map{|i| ["#{i*10}%", i/10.0]}, 0.5 ), class: 'select') %>
+    </div>
+  </div>
+
+  <div class='row'>
+    <div class='input-field col s6  offset-s1'>
+      <h5 class='blue-text'> IDC Waste 지표: </h5>
+      <p class='black-text'>IDC 유휴 서버의 낭비율 </p>
+    </div>
+    <div class='input-field col s4'>
+      <%= select_tag(:idc_waste, options_for_select(
+        (1..20).to_a.map{|i| ["#{i*10}%", i/10.0]}, 0.3 )) %>
+    </div>
+  </div>
+</div>
+
+<div class='card-action'>
+  <div class='row'>
+    <div class='input-field col s4 offset-s8'>
+      <%= submit_tag("Simulate", class: 'btn waves-effect waves-light') %>
+    </div>
+  </div>
+</div>
+
+<% end %>
+</div>
+
+
+<script>
+</script>
+

@@ -35,14 +35,14 @@ module HybridSimulator
 
   def self.make_traffic(phases)
     traffic = []
-    m = 0
+    month = 0
 
-    traffic[m] = 100
+    traffic[month] = 100
 
     phases.each do | growth, length|
       length.times do 
-        m = m + 1
-        traffic[m] = traffic[m-1] * growth
+        traffic[month + 1] = traffic[month] * growth
+        month = month + 1
       end
     end
 
@@ -68,6 +68,8 @@ module HybridSimulator
     puts "\nIDC Rate: #{idc_capacity_rate*100}%" if show_graph
 
     idc_cost, aws_cost, waste_cost  = 0, 0, 0
+
+    # Assume that idc_capacity is provied as some rate of the maximum traffic over given months  
     idc_capacity = traffic.max * idc_capacity_rate
 
     before_peak = true
@@ -113,9 +115,9 @@ module HybridSimulator
 
     costs = []
 
-    (0..200).step(20) do |rate|
-      aiw =  hybrid_cost(traffic, rate/100.0, idc_cost_ratio, idc_waste_ratio, show_graph)
-      costs.push([[rate.to_s+"%"], {aws: aiw[0], idc: aiw[1], waste: aiw[2]}])
+    (0..200).step(10) do |rate|
+      aws, idc, waste  =  hybrid_cost(traffic, rate/100.0, idc_cost_ratio, idc_waste_ratio, show_graph)
+      costs.push([[rate.to_s+"%"], {aws: aws, idc: idc, waste: waste}])
     end
 
     return costs, traffic

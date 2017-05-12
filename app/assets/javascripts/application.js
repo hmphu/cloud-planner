@@ -18,3 +18,8 @@
 //= require_tree .
 //= require Chart
 //= require chartkick
+
+
+ $(document).ready(function() {
+   $('select').material_select();
+ });
