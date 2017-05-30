@@ -1,15 +1,15 @@
 <%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
 
 
-<div class='card'>
-<div class='card-content'>
+<div class='card red lighten-2'>
+<div class='card-content white-text'>
   <h4> 시뮬레이션 조건  
-    <%= link_to hybrid_simulation_new_path, class: 'red-text text-lighten-1', style: 'font-size: 1.2rem' do %>
+    <%= link_to hybrid_simulation_new_path, class: 'white-text text-lighten-1', style: 'font-size: 1.2rem' do %>
       <i class="material-icons">mode_edit</i>
     <% end %>
   </h4>
 
-  <h5 class='blue-text' style='font-weight: 300;'> 
+  <h5 class='white-text' style='font-weight: 300;'> 
     IDC Cost 지표: <%= (@idc_cost * 100).to_i%>%,   
     IDC Waste 지표: <%= (@idc_waste * 100).to_i%>%
   </h5>
@@ -17,7 +17,7 @@
 </div>
 
 <% @simulations.each do |simul| %>
-<div class='card'>
+<div class='card grey lighten-4'>
 <div class='card-content'>
 
   <% min = find_min_cost(simul[:data]) %>
