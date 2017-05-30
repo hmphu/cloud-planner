@@ -1,0 +1,45 @@
+<%= javascript_include_tag "//www.google.com/jsapi", "chartkick" %>
+
+
+<div class='card blue lighten-2'>
+<div class='card-content white-text'>
+  <h4> 시뮬레이션- 월별 상세 </h4>
+
+  <h5 class='white-text' style='font-weight: 300;'> 
+    IDC Cost 지표: <%= (@idc_cost * 100).to_i%>%,   
+    IDC Waste 지표: <%= (@idc_waste * 100).to_i%>%
+    초기 성장: <%= @phase1_length %> 개월
+  </h5>
+</div>
+</div>
+
+
+<% @costs.each do |simul| %>
+<div class='card'>
+<div class='card-content'>
+  <div class='row'>
+    <h4> With IDC portion <%=simul[0]%>% : <%= number_with_delimiter total_of_monthly(simul[1]) %> </h4>
+    <div class='col s6'>
+      <h5> Monthly Traffic </h5>
+      <%= column_chart transfrom_traffic_data(@traffic),
+        max: @max,
+        stacked: true,
+        xtitle: 'Month',
+        colors: ["#00897b"], 
+        library: {backgroundColor: "#FFF", height: 265} %>
+    </div>
+    <div class='col s6'>
+      <h5> Monthly Cost </h5>
+      <%= column_chart transfrom_cost_detail_data(simul[1]),
+        max: @max,
+        stacked: true,
+        xtitle: 'Month',
+        colors: [ "#1565c0", "#7777b0", "red"], 
+        library: {backgroundColor: "#FFF", height: 265} %>
+    </div>
+  </div>
+</div>
+</div>
+<% end %>
+
+<h8> Calculated By @kjh </h8>

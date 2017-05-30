@@ -64,10 +64,11 @@ module HybridSimulator
 
   # idc_capacity_rate : rate of prepared idc capacity compared to the max traffic 
   # show_graph : print visual bar chart
-  def self.hybrid_cost(traffic, idc_capacity_rate, idc_cost_ratio, idc_waste_ratio, show_graph)
+  def self.hybrid_cost(traffic, idc_capacity_rate, idc_cost_ratio, idc_waste_ratio, show_graph, monthly_result=false)
     puts "\nIDC Rate: #{idc_capacity_rate*100}%" if show_graph
 
     idc_cost, aws_cost, waste_cost  = 0, 0, 0
+    idc_costs, aws_costs, waste_costs = [], [], []
 
     # Assume that idc_capacity is provied as some rate of the maximum traffic over given months  
     idc_capacity = traffic.max * idc_capacity_rate
@@ -77,6 +78,9 @@ module HybridSimulator
     traffic.each do |t|
       before_peak = false if t == traffic.max
 
+      # t_aws: traffic portion to be covered by AWS
+      # t_idc: traffic portion to be covered by IDC  
+      # t_waste: IDC capacity - traffic (or 0 if traffic < IDC capacity) 
       t_aws = t > idc_capacity ? t - idc_capacity : 0
 
       if before_peak
@@ -99,9 +103,17 @@ module HybridSimulator
       aws_cost = aws_cost + a 
       idc_cost = idc_cost + i
       waste_cost = waste_cost + w
+
+      aws_costs.push  a 
+      idc_costs.push  i
+      waste_costs.push w
     end
 
-    return aws_cost, idc_cost, waste_cost
+    if monthly_result
+      return aws_costs, idc_costs, waste_costs
+    else
+      return aws_cost, idc_cost, waste_cost
+    end
   end
 
 
@@ -118,6 +130,20 @@ module HybridSimulator
     (0..200).step(10) do |rate|
       aws, idc, waste  =  hybrid_cost(traffic, rate/100.0, idc_cost_ratio, idc_waste_ratio, show_graph)
       costs.push([[rate.to_s+"%"], {aws: aws, idc: idc, waste: waste}])
+    end
+
+    return costs, traffic
+  end
+
+  def self.simulate_details(idc_cost_ratio, idc_waste_ratio, phase1_length)
+    phases = make_phases(phase1_length)
+    traffic = make_traffic(phases)
+
+    costs = []
+
+    (0..200).step(10) do |rate|
+      aws, idc, waste  =  hybrid_cost(traffic, rate/100.0, idc_cost_ratio, idc_waste_ratio, show_graph = false, monthly_result = true)
+      costs.push([rate.to_s, {aws: aws, idc: idc, waste: waste}])
     end
 
     return costs, traffic
