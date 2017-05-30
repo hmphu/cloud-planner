@@ -39,7 +39,7 @@
   -->
   </h5>
   <div class='col s6'>
-    <h6> Game Traffic Over Months </h6>
+    <h6> Monthly Traffic</h6>
     <%= column_chart transfrom_traffic_data(simul[:traffic]),
       stacked: true,
       xtitle: 'Month',
@@ -48,10 +48,10 @@
   </div>
 
   <div class='col s6'>
-    <h6> Estimated Total Costs Of Lifetime</h6>
+    <h6> Total Cost </h6>
     <%= column_chart transfrom_cost_data(simul[:data]),
       stacked: true,
-      xtitle: 'IDC capacity / Peak Traffic',
+      xtitle: 'IDC 비율',
       colors: ["#1565c0", "#0d47a1", "red"], 
       library: {backgroundColor: "#FFF", height: 265} %>
   </div>
