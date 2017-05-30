@@ -24,6 +24,7 @@
 <div class='row'>
   <h5> <%=simul[:month]%> 개월 성장 후 하락하는 경우,  <br />
     IDC 최적비율은 Peak 트래픽의 <%= min[0][0] %> 
+  <%= link_to '(Details...)', "/hybrid_simulation/details", style: 'font-size: 14px' %>
   <!--
   -> ALL-IN 대비 <%= rate_vs_allin(simul[:data])%>%
   -->
