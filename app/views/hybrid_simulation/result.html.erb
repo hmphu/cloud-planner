@@ -3,15 +3,14 @@
 
 <div class='card red lighten-2'>
 <div class='card-content white-text'>
-  <h4> 시뮬레이션 조건  
-    <%= link_to hybrid_simulation_new_path, class: 'white-text text-lighten-1', style: 'font-size: 1.2rem' do %>
-      <i class="material-icons">mode_edit</i>
-    <% end %>
-  </h4>
+  <h4> 시뮬레이션 결과</h4>
 
   <h5 class='white-text' style='font-weight: 300;'> 
     IDC Cost 지표: <%= (@idc_cost * 100).to_i%>%,   
     IDC Waste 지표: <%= (@idc_waste * 100).to_i%>%
+    <%= link_to hybrid_simulation_new_path, class: 'white-text text-lighten-1', style: 'font-size: 1.2rem' do %>
+      <i class="material-icons">mode_edit</i>
+    <% end %>
   </h5>
 </div>
 </div>
@@ -22,24 +21,23 @@
 
   <% min = find_min_cost(simul[:data]) %>
 <div class='row'>
-  <h5> <%=simul[:month]%> 개월 성장 후 하락하는 경우,  <br />
+  <h5> 초기 성장 <%=simul[:month]%> 개월, <br />
+    <i class="material-icons">trending_flat</i>
     IDC 최적비율은 Peak 트래픽의 <%= min[0][0] %> 
-  <%= link_to('(monthly details...)', 
-     {
+  <%= link_to({
        controller: "hybrid_simulation",
        action: "details",
        idc_cost: @idc_cost,
        idc_waste: @idc_waste,
        phase1_length: simul[:month],
-     },
-     style: 'font-size: smaller') %>
+     }, style: 'font-size: smaller; text-align: right;float: right;') do %>
+     Monthly details 
+     <i class="material-icons">trending_up</i>
+   <% end %>
   <!--
   -> ALL-IN 대비 <%= rate_vs_allin(simul[:data])%>%
   -->
   </h5>
-<!--
-<h6> Initial Growth: <%=simul[:month]%> months </h6>
--->
   <div class='col s6'>
     <h6> Game Traffic Over Months </h6>
     <%= column_chart transfrom_traffic_data(simul[:traffic]),

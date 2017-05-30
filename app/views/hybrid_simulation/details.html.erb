@@ -3,13 +3,38 @@
 
 <div class='card blue lighten-2'>
 <div class='card-content white-text'>
-  <h4> 시뮬레이션- 월별 상세 </h4>
+  <h4> 상세 시뮬레이션- 초기 성장 <%= @phase1_length %> 개월 </h4>
 
   <h5 class='white-text' style='font-weight: 300;'> 
     IDC Cost 지표: <%= (@idc_cost * 100).to_i%>%,   
     IDC Waste 지표: <%= (@idc_waste * 100).to_i%>%
-    초기 성장: <%= @phase1_length %> 개월
   </h5>
+</div>
+</div>
+
+<div class='card blue lighten-5'>
+<div class='card-content'>
+  <% min = find_min_cost(@costs_summary) %>
+  <div class='row'>
+    <h5> IDC 최적비율: Peak 트래픽의 <%= min[0][0] %> </h5>
+    <div class='col s6'>
+      <h6> Monthly Traffic </h6>
+      <%= column_chart transfrom_traffic_data(@traffic_summary),
+        stacked: true,
+        xtitle: 'Month',
+        colors: ["#00897b"], 
+        library: {backgroundColor: "#FFF", height: 265} %>
+    </div>
+
+    <div class='col s6'>
+      <h6> Costs with different IDC portion</h6>
+      <%= column_chart transfrom_cost_data(@costs_summary),
+        stacked: true,
+        xtitle: 'IDC capacity / Peak Traffic',
+        colors: ["#1565c0", "#0d47a1", "red"], 
+        library: {backgroundColor: "#FFF", height: 265} %>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -18,9 +43,11 @@
 <div class='card'>
 <div class='card-content'>
   <div class='row'>
-    <h4> With IDC portion <%=simul[0]%>% : <%= number_with_delimiter total_of_monthly(simul[1]) %> </h4>
+    <h5> <span style="font-size: smaller">IDC 비율 <%=simul[0]%>% :</span> 
+      <%= number_with_delimiter total_of_monthly(simul[1]) %> 
+    </h5>
     <div class='col s6'>
-      <h5> Monthly Traffic </h5>
+      <h6> Monthly Traffic </h6>
       <%= column_chart transfrom_traffic_data(@traffic),
         max: @max,
         stacked: true,
@@ -29,7 +56,7 @@
         library: {backgroundColor: "#FFF", height: 265} %>
     </div>
     <div class='col s6'>
-      <h5> Monthly Cost </h5>
+      <h6> Monthly Cost </h6>
       <%= column_chart transfrom_cost_detail_data(simul[1]),
         max: @max,
         stacked: true,

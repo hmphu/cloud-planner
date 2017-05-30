@@ -26,6 +26,7 @@ class HybridSimulationController < ApplicationController
     @phase1_length = (params[:phase1_length] || 3).to_i
 
     @costs, @traffic = HybridSimulator.simulate_details(@idc_cost, @idc_waste, @phase1_length )
+    @costs_summary, @traffic_summary = HybridSimulator.simulate(@idc_cost, @idc_waste, @phase1_length)
 
     @max = @traffic.max 
     @max = (@max / 100.0 * 2 + 0.5).round * 100 / 2
